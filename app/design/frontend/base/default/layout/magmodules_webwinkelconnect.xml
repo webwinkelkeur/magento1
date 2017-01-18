@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!--
+  ~ Magmodules.eu - http://www.magmodules.eu
+  ~
+  ~ NOTICE OF LICENSE
+  ~ This source file is subject to the Open Software License (OSL 3.0)
+  ~ that is bundled with this package in the file LICENSE.txt.
+  ~ It is also available through the world-wide-web at this URL:
+  ~ http://opensource.org/licenses/osl-3.0.php
+  ~ If you did not receive a copy of the license and are unable to
+  ~ obtain it through the world-wide-web, please send an email
+  ~ to info@magmodules.eu so we can send you a copy immediately.
+  ~
+  ~ @category      Magmodules
+  ~ @package       Magmodules_WebwinkelKeur
+  ~ @author        Magmodules <info@magmodules.eu>
+  ~ @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+  ~ @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+  ~
+  -->
+<layout version="0.1.0">
+    <default>
+        <reference name="head">
+            <action method="addCss">
+                <stylesheet>magmodules/webwinkelconnect/sidebar.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>magmodules/webwinkelconnect/richsnippets.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="left">
+            <block type="webwinkelconnect/sidebar" name="left.webwinkelconnect"
+                   template="magmodules/webwinkelconnect/sidebar/left.phtml"/>
+        </reference>
+        <reference name="right">
+            <block type="webwinkelconnect/sidebar" name="right.webwinkelconnect"
+                   template="magmodules/webwinkelconnect/sidebar/right.phtml"/>
+        </reference>
+        <reference name="before_body_end">
+            <block type="core/template" name="webwinkelconnect_js_sidebar" as="webwinkelconnect_js_sidebar"
+                   template="magmodules/webwinkelconnect/sidebar/js-sidebar.phtml"/>
+        </reference>
+    </default>
+    <webwinkelconnect_index_index>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/2columns-left.phtml</template>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addCss">
+                <stylesheet>magmodules/webwinkelconnect/style.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="webwinkelconnect/reviews" name="webwinkelconnect.index"
+                   template="magmodules/webwinkelconnect/index.phtml"/>
+        </reference>
+        <reference name="left">
+            <remove name="left.webwinkelconnect"/>
+        </reference>
+        <reference name="right">
+            <remove name="right.webwinkelconnect"/>
+        </reference>
+    </webwinkelconnect_index_index>
+</layout> 

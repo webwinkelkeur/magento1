@@ -1,0 +1,213 @@
+/*
+ * Magmodules.eu - http://www.magmodules.eu
+ *
+ * NOTICE OF LICENSE
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magmodules.eu so we can send you a copy immediately.
+ *
+ * @category      Magmodules
+ * @package       Magmodules_WebwinkelKeur
+ * @author        Magmodules <info@magmodules.eu>
+ * @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+ * @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ */
+
+.webwinkelkeur {
+}
+
+.webwinkelkeur h1 {
+    float: left;
+    width: 50%;
+}
+
+.webwinkelkeur .button {
+    float: right;
+}
+
+.webwinkelkeur .about-webwinkelkeur {
+}
+
+.webwinkelkeur .stats-webwinkelkeur {
+    float: left;
+    margin: 20px 10px 10px 1px;
+}
+
+.webwinkelkeur .ratingblock-webwinkelkeur {
+    width: 100px;
+    height: 60px;
+    padding-top: 8px;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    margin: 10px;
+    border-radius: 10px;
+    border: 4px solid white;
+    float: inherit;
+}
+
+.webwinkelkeur .content-webwinkelkeur {
+    overflow: auto;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.webwinkelkeur .review-list {
+    margin-bottom: 25px;
+    margin-top: 10px;
+}
+
+.webwinkelkeur .review-list h3 {
+    width: 80%;
+    float: left;
+}
+
+.webwinkelkeur .review-header {
+    clear: both;
+    border-bottom: 1px solid #E0E0E0;
+    width: 100%;
+    height: 25px;
+}
+
+.webwinkelkeur ul.overall li {
+    float: right;
+}
+
+.webwinkelkeur ul.summary-index {
+    display: table;
+    list-style-type: none;
+}
+
+.webwinkelkeur ul.summary-index li {
+    display: table-cell;
+    padding: 5px 5px 5px 10px;
+}
+
+.webwinkelkeur ul.summary-index li.head {
+    padding: 10px 5px 5px 5px;
+    border-bottom: 1px dotted #E0E0E0;
+}
+
+.webwinkelkeur ul.experience li {
+    width: 100%;
+    padding: 10px;
+}
+
+.webwinkelkeur .rating-name {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* INDEX REVIEW LIST */
+.review-list .rating-empty {
+    float: left;
+    display: block;
+    width: 80px;
+    height: 16px;
+    background: url('./images/star.png') 0 -16px;
+    margin-right: 5px;
+}
+
+.review-list .rating-star-1 {
+    float: left;
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-star-2 {
+    float: left;
+    display: block;
+    width: 32px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-star-3 {
+    float: left;
+    display: block;
+    width: 48px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-star-4 {
+    float: left;
+    display: block;
+    width: 64px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-star-5 {
+    float: left;
+    display: block;
+    width: 80px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-greystar-1 {
+    float: left;
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: url('./images/greystar.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-greystar-2 {
+    float: left;
+    display: block;
+    width: 32px;
+    height: 16px;
+    background: url('./images/greystar.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-greystar-3 {
+    float: left;
+    display: block;
+    width: 48px;
+    height: 16px;
+    background: url('./images/greystar.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-greystar-4 {
+    float: left;
+    display: block;
+    width: 64px;
+    height: 16px;
+    background: url('./images/greystar.png') 0 0;
+    margin-right: 5px;
+}
+
+.review-list .rating-greystar-5 {
+    float: left;
+    display: block;
+    width: 80px;
+    height: 16px;
+    background: url('./images/greystar.png') 0 0;
+    margin-right: 5px;
+}
+
+/* CUSTOM BLOCK */
+.webwinkelconnect-custom {
+    font-weight: bold;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 2px;
+}
