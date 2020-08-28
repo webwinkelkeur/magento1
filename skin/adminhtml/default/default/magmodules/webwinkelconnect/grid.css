@@ -1,0 +1,75 @@
+/*
+ * Magmodules.eu - http://www.magmodules.eu
+ *
+ * NOTICE OF LICENSE
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magmodules.eu so we can send you a copy immediately.
+ *
+ * @category      Magmodules
+ * @package       Magmodules_WebwinkelKeur
+ * @author        Magmodules <info@magmodules.eu>
+ * @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+ * @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ */
+
+/** RATINGS ORDER GRID **/
+.rating-empty, .rating-star-1, .rating-star-2, .rating-star-3, .rating-star-4, .rating-star-5 {
+    background: url('star.png') 0 0;
+    margin-right: 5px;
+    height: 16px;
+    float: left;
+    width: 80px;
+}
+
+.rating-star-1 {
+    width: 16px;
+}
+
+.rating-star-2 {
+    width: 32px;
+}
+
+.rating-star-3 {
+    width: 48px;
+}
+
+.rating-star-4 {
+    width: 64px;
+}
+
+.rating-star-5 {
+    width: 80px;
+}
+
+.rating-empty {
+    float: left;
+    width: 80px;
+    background: url('star.png') 0 -16px;
+}
+
+a.magtooltip span {
+    display: none;
+    padding: 2px 3px;
+    margin-left: 8px;
+    width: 550px;
+}
+
+a.magtooltip:hover span {
+    display: inline;
+    position: absolute;
+    background: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    color: #000;
+    padding: 10px;
+}
+
+.magtooltip hr {
+    height: 1px;
+    border: 1px dotted #606;
+}

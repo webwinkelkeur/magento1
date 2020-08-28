@@ -1,0 +1,160 @@
+<?php
+/**
+ * Magmodules.eu - http://www.magmodules.eu
+ *
+ * NOTICE OF LICENSE
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magmodules.eu so we can send you a copy immediately.
+ *
+ * @category      Magmodules
+ * @package       Magmodules_WebwinkelKeur
+ * @author        Magmodules <info@magmodules.eu>
+ * @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+ * @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ */
+$reviews = $this->getReviews();
+$stats = $this->getStats();
+$url = Mage::getStoreConfig('webwinkelconnect/general/url');
+?>
+<div class="webwinkelkeur">
+    <div class="page-title">
+        <h1><?php echo $this->__('WebwinkelKeur'); ?></h1>
+        <?php if (Mage::getStoreConfig('webwinkelconnect/general/url')): ?>
+            <?php if (Mage::getStoreConfig('webwinkelconnect/frontend/enabled')): ?>
+                <button class="button webwinkelkeurAddReview">
+                    <span>
+						<span>
+							<?php echo $this->__('Write review'); ?>
+						</span>
+					</span>
+                </button>
+            <?php else: ?>
+                <button class="button" onclick="setLocation('<?php echo $url; ?>')">
+					<span>
+						<span>
+							<?php echo $this->__('Write review'); ?>
+						</span>
+					</span>
+                </button>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+    <?php if ($reviews->getSize()): ?>
+        <div class="content-webwinkelkeur">
+            <div class="about-webwinkelkeur">
+                Stichting WebwinkelKeur is een non-profit organisatie welke een keurmerk combineert met
+                klantbeoordelingen. Als lid van Stichting WebwinkelKeur hebben we dan ook een juridische toets
+                doorstaan. Tevens kunt u onafhankelijk verzamelde klantbeoordelingen bij hen plaatsen en lezen.
+                Stichting WebwinkelKeur zorgt hierbij voor betrouwbare en echte klantbeoordelingen die niet door
+                de webwinkel te beïnvloeden zijn. Bent u toch niet tevreden? Dan kunt u uw geschil melden bij
+                WebwinkelKeur en proberen ze u te helpen. U kunt dan ook veilig bij ons winkelen.
+                Lees meer over Stichting WebwinkelKeur op:
+                <a href="https://www.webwinkelkeur.nl/consument/" target="_blank">
+                    https://www.webwinkelkeur.nl/consument/
+                </a>.
+                <br/>
+                <br/>
+                <strong><?php echo $this->__('Link'); ?>:</strong>
+                <a href="<?php echo Mage::getStoreConfig('webwinkelconnect/general/url'); ?>" target="_blank">
+                    <?php echo Mage::getStoreConfig('webwinkelconnect/general/url'); ?>
+                </a>
+            </div>
+            <div class="stats-webwinkelkeur">
+                <div class="ratingblock-webwinkelkeur" style="background-color: #e0eacf; color: #7dab00;">
+                    <span>+</span><br/>
+                    <?php echo $stats->getPercentagePositive(); ?>%
+                </div>
+                <div class="ratingblock-webwinkelkeur" style="background-color: #f3ecdb; color: #ef941f;">
+                    <span>+/-</span><br/>
+                    <?php echo $stats->getPercentageNeutral(); ?>%
+                </div>
+                <div class="ratingblock-webwinkelkeur" style="background-color: #f8d7d7; color: #d31b1b;">
+                    <span>-</span><br/>
+                    <?php echo $stats->getPercentageNegative(); ?>%
+                </div>
+            </div>
+        </div>
+        <?php $i = 0;
+        foreach ($reviews as $review): ?>
+            <div class="review-list">
+                <div class="review-header">
+                    <h3>
+                        <?php echo $review->getName(); ?> -
+                        <?php echo Mage::helper('core')->formatDate($review->getDate(), 'long', false); ?>
+                    </h3>
+                    <?php if ($review->getRating()): ?>
+                        <ul class="overall">
+                            <li>
+                                <span class="rating-empty">
+                                    <span class="rating-star-<?php echo $review->getRating(); ?>"></span>
+                                </span>
+                            </li>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+                <ul class="experience">
+                    <li>
+                        <p>
+                            <?php if ($review->getExperience()): ?>
+                                <?php echo nl2br($review->getExperience()); ?>
+                            <?php else: ?>
+                                &nbsp;
+                            <?php endif; ?>
+                        </p>
+                    </li>
+                </ul>
+                <ul class="summary-index">
+                    <?php if ($review->getDeliveryTime()): ?>
+                        <li>
+                            <span class="rating-name">
+                                <?php echo $this->__('Delivery Time'); ?>
+                            </span>
+                            <span class="rating-empty">
+                                <span class="rating-greystar-<?php echo $review->getDeliveryTime(); ?>"></span>
+                            </span>
+                        </li>
+                    <?php endif; ?>
+                    <?php if ($review->getUserfriendlyness()): ?>
+                        <li>
+                            <span class="rating-name">
+                                <?php echo $this->__('Userfriendlyness'); ?>
+                            </span>
+                            <span class="rating-empty">
+                                <span class="rating-greystar-<?php echo $review->getUserfriendlyness(); ?>"></span>
+                            </span>
+                        </li>
+                    <?php endif; ?>
+                    <?php if ($review->getPriceQuality()): ?>
+                        <li>
+                            <span class="rating-name">
+                                <?php echo $this->__('Price / Quality'); ?>
+                            </span>
+                            <span class="rating-empty">
+                                <span class="rating-greystar-<?php echo $review->getPriceQuality(); ?>"></span>
+                            </span>
+                        </li>
+                    <?php endif; ?>
+                    <?php if ($review->getAftersales()): ?>
+                        <li>
+                            <span class="rating-name">
+                                <?php echo $this->__('Aftersales'); ?>
+                            </span>
+                            <span class="rating-empty">
+                                <span class="rating-greystar-<?php echo $review->getAftersales(); ?>"></span>
+                            </span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+            <?php $i++; endforeach; ?>
+        <?php echo $this->getPagerHtml(); ?>
+    <?php else: ?>
+        <p class="note-msg"><?php echo $this->__('No reviews found...'); ?></p>
+    <?php endif ?>
+</div>

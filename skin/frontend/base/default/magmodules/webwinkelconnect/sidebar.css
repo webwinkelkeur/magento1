@@ -1,0 +1,160 @@
+/*
+ * Magmodules.eu - http://www.magmodules.eu
+ *
+ * NOTICE OF LICENSE
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magmodules.eu so we can send you a copy immediately.
+ *
+ * @category      Magmodules
+ * @package       Magmodules_WebwinkelKeur
+ * @author        Magmodules <info@magmodules.eu>
+ * @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+ * @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ */
+
+.webwinkelkeur-sidebar-block {
+    padding: 10px;
+}
+
+.webwinkelkeur-sidebar .rating-name {
+    font-style: italic;
+}
+
+.webwinkelkeur-sidebar .rating-empty {
+    float: right;
+    display: block;
+    width: 80px;
+    height: 16px;
+    background: url('./images/star.png') 0 -16px;
+    margin-right: 5px;
+}
+
+.webwinkelkeur-sidebar .rating-star-1 {
+    float: left;
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.webwinkelkeur-sidebar .rating-star-2 {
+    float: left;
+    display: block;
+    width: 32px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.webwinkelkeur-sidebar .rating-star-3 {
+    float: left;
+    display: block;
+    width: 48px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.webwinkelkeur-sidebar .rating-star-4 {
+    float: left;
+    display: block;
+    width: 64px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+.webwinkelkeur-sidebar .rating-star-5 {
+    float: left;
+    display: block;
+    width: 80px;
+    height: 16px;
+    background: url('./images/star.png') 0 0;
+    margin-right: 5px;
+}
+
+
+/** big review stars **/
+
+.block-content p.company-name {
+    text-align: center;
+    margin: 5px auto;
+    font-size: 12px;
+}
+
+.total-block-text {
+    border-bottom: 1px solid #CCC;
+    padding-bottom: 5px;
+}
+
+.total-block-text p {
+    text-align: center;
+    padding-top: 5px;
+    margin-bottom: 2px;
+    font-size: 18px;
+}
+
+.total-block-text p.based-on {
+    text-align: center;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.total-block-stars {
+    height: 35px;
+    width: 188px;
+    background: url('./images/5-stars-empty.png') no-repeat;
+    margin: 5px auto;
+}
+
+.total-block-stars span {
+    display: block;
+    height: 50px;
+    background: url('./images/5-stars-full.png') no-repeat;
+}
+
+.shopreview-sidebar-block {
+    padding: 5px;
+}
+
+.shopreview-sidebar-block .rating-name {
+    text-align: left;
+    font-style: italic;
+}
+
+
+/* CUSTOM BLOCK */
+
+.webwinkelconnect-custom {
+    font-weight: bold;
+    font-size: 13px;
+    display: block;
+    border: .25em solid #EEE;
+    background: #F6F6F6;
+    padding: 1.0em;
+    width: 30%;
+    text-align: center;
+}
+
+.webwinkelconnect-custom .client {
+    font-size: 16px;
+}
+
+.webwinkelconnect-custom .rating-box {
+    margin-left: 40%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.webwinkelconnect-custom .number {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 300;
+}

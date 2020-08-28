@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!--
+  ~ Magmodules.eu - http://www.magmodules.eu
+  ~
+  ~ NOTICE OF LICENSE
+  ~ This source file is subject to the Open Software License (OSL 3.0)
+  ~ that is bundled with this package in the file LICENSE.txt.
+  ~ It is also available through the world-wide-web at this URL:
+  ~ http://opensource.org/licenses/osl-3.0.php
+  ~ If you did not receive a copy of the license and are unable to
+  ~ obtain it through the world-wide-web, please send an email
+  ~ to info@magmodules.eu so we can send you a copy immediately.
+  ~
+  ~ @category      Magmodules
+  ~ @package       Magmodules_WebwinkelKeur
+  ~ @author        Magmodules <info@magmodules.eu>
+  ~ @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+  ~ @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+  ~
+  -->
+<config>
+    <menu>
+        <shopreview module="webwinkelconnect">
+            <title>Reviews</title>
+            <sort_order>71</sort_order>
+            <children>
+                <webwinkelconnect module="webwinkelconnect">
+                    <title>WebwinkelKeur</title>
+                    <sort_order>60</sort_order>
+                    <children>
+                        <webwinkelconnect_reviews module="webwinkelconnect">
+                            <title>WebwinkelKeur Reviews</title>
+                            <sort_order>100</sort_order>
+                            <action>adminhtml/webwinkelreviews/</action>
+                        </webwinkelconnect_reviews>
+                        <webwinkelconnect_log module="webwinkelconnect">
+                            <title>WebwinkelKeur Log</title>
+                            <sort_order>110</sort_order>
+                            <action>adminhtml/webwinkellog/</action>
+                        </webwinkelconnect_log>
+                        <webwinkelconnect_config module="webwinkelconnect">
+                            <title>Config</title>
+                            <sort_order>120</sort_order>
+                            <action>adminhtml/system_config/edit/section/webwinkelconnect</action>
+                        </webwinkelconnect_config>
+                    </children>
+                </webwinkelconnect>
+            </children>
+        </shopreview>
+    </menu>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <webwinkelconnect translate="title" module="webwinkelconnect">
+                                        <title>WebwinkelKeur</title>
+                                    </webwinkelconnect>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <shopreview module="webwinkelconnect">
+                        <title>Reviews</title>
+                        <sort_order>71</sort_order>
+                        <children>
+                            <webwinkelconnect module="webwinkelconnect">
+                                <title>WebwinkelKeur</title>
+                                <sort_order>60</sort_order>
+                                <children>
+                                    <webwinkelconnect_reviews module="webwinkelconnect">
+                                        <title>WebwinkelKeur Reviews</title>
+                                        <sort_order>100</sort_order>
+                                        <action>adminhtml/webwinkelreviews/</action>
+                                    </webwinkelconnect_reviews>
+                                    <webwinkelconnect_log module="webwinkelconnect">
+                                        <title>WebwinkelKeur Log</title>
+                                        <sort_order>110</sort_order>
+                                        <action>adminhtml/webwinkellog/</action>
+                                    </webwinkelconnect_log>
+                                </children>
+                            </webwinkelconnect>
+                        </children>
+                    </shopreview>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>
