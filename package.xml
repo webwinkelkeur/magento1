@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>Magmodules_Webwinkelconnect</name>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <stability>stable</stability>
     <license>Open Software License (OSL)</license>
     <channel>community</channel>
@@ -10,7 +10,7 @@
     <description>This extension allows integration of WebwinkelKeur sidebar and automatic invitation of customers to add
         reviews on WebwinkelKeur page.
     </description>
-    <notes>test</notes>
+    <notes>Package.xml added</notes>
     <authors>
         <author>
             <name>Tsanko</name>
