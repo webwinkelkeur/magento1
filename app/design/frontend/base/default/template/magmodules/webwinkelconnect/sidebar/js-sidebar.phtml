@@ -24,15 +24,5 @@ $enabled = Mage::getStoreConfig('webwinkelconnect/general/enabled');
 $js_enabled = Mage::getStoreConfig('webwinkelconnect/frontend/enabled');
 ?>
 <?php if ($webwinkelconnect_id && $js_enabled && $enabled): ?>
-    <script type="text/javascript">
-        (function () {
-            _webwinkelkeur_id = <?php echo $webwinkelconnect_id; ?>;
-            var js = document.createElement("script");
-            js.type = "text/javascript";
-            js.async = true;
-            js.src = "//www.webwinkelkeur.nl/js/sidebar.js";
-            var s = document.getElementsByTagName("script")[0];
-            s.parentNode.insertBefore(js, s);
-        })();
-    </script>
+    <script>(function(url,id){var script=document.createElement('script');script.async=true;script.src=url+'/sidebar.js?id='+id+'&c='+cachebuster(10,id);var ref=document.getElementsByTagName('script')[0];ref.parentNode.insertBefore(script,ref);function cachebuster(refreshMinutes,id){var now=Date.now();var interval=refreshMinutes*60e3;var shift=(Math.sin(id)||0)*interval;return Math.floor((now+shift)/interval);}})('https://dashboard.webwinkelkeur.nl',<?php echo $webwinkelconnect_id; ?>);</script>
 <?php endif; ?>	
