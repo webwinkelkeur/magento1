@@ -21,7 +21,7 @@
 <config>
     <modules>
         <Magmodules_Webwinkelconnect>
-            <version>1.1.5</version>
+            <version>1.1.6</version>
         </Magmodules_Webwinkelconnect>
     </modules>
     <global>
