@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+version="$(git describe --tags --match 'v*')"
+version="${version#v}"
+out="$PWD/dist/webwinkelkeur-magento1-${version}.tgz"
+
+export TZ=UTC
+
+mkdir -p "$(dirname "$out")"
+rm -f "$out"
+
+tmp="$(mktemp -d)"
+cleanup() { rm -rf "$tmp"; }
+trap cleanup EXIT
+
+git archive HEAD -- app modman package.xml README.md skin |
+	tar x -C "$tmp"
+
+cd "$tmp"
+
+find -name '*.xml' -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} +
+find -name '*.xml' -exec perl -p -i -e 's~\$DATE\$~'"$(date +%Y-%m-%d)"'~g' {} +
+find -name '*.xml' -exec perl -p -i -e 's~\$TIME\$~'"$(date +%H:%M)"'~g' {} +
+
+tar czvf "$out" *
+
+echo "$out"
