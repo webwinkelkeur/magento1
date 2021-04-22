@@ -213,7 +213,7 @@
         <required>
             <php>
                 <min>5.3.0</min>
-                <max>7.2.8</max>
+                <max>7.3.999</max>
             </php>
         </required>
     </dependencies>
