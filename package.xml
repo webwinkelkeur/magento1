@@ -1,16 +1,14 @@
 <?xml version="1.0"?>
 <package>
     <name>Magmodules_Webwinkelconnect</name>
-    <version>1.1.6</version>
+    <version>$VERSION$</version>
     <stability>stable</stability>
     <license>Open Software License (OSL)</license>
     <channel>community</channel>
     <extends/>
     <summary>WebwinkelKeur extension</summary>
-    <description>This extension allows integration of WebwinkelKeur sidebar and automatic invitation of customers to add
-        reviews on WebwinkelKeur page.
-    </description>
-    <notes>Package.xml added</notes>
+    <description>This extension allows integration of WebwinkelKeur sidebar and automatic invitation of customers to add reviews on WebwinkelKeur page.</description>
+    <notes/>
     <authors>
         <author>
             <name>Tsanko</name>
@@ -18,8 +16,8 @@
             <email>tsanko@webwinkelkeur.nl</email>
         </author>
     </authors>
-    <date>2020-08-27</date>
-    <time>06:37:25</time>
+    <date>$DATE$</date>
+    <time>$TIME$</time>
     <compatible/>
     <contents>
         <target name="magelocal">
