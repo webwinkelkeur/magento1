@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+version="$(git describe --tags --match 'v*' --exact-match)"
+version="${version#v}"
+
+package="$(./bin/package)"
+
+git push --tags origin master
+
+hub release create -do -a "$package" -m "WebwinkelKeur for Magento 1 v${version}" "v${version}"
