@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-tar cJf pkgs/magento-1944.txz www/1944
+tar cJf pkgs/magento-1944.txz --no-xattrs www/1944
 
 mysqldump \
 	--defaults-file=/dev/null \
