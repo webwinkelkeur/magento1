@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+exec mysql --defaults-file=/dev/null -h 127.0.0.1 -P 21242 -uroot "$@"

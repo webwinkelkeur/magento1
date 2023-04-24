@@ -3,7 +3,26 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-version="$(git describe --tags --match 'v*')"
+ref=HEAD
+
+while [[ $# -gt 0 ]]; do
+	arg=$1
+	shift
+	case $arg in
+		--dirty)
+			ref=$(git stash create)
+			if [[ ! $ref ]]; then
+				ref=HEAD
+			fi
+			;;
+		*)
+			echo "Usage: $0 [--dirty]" >&2
+			exit 1
+			;;
+	esac
+done
+
+version="$(git describe --tags --match 'v*' $ref)"
 version="${version#v}"
 out="$PWD/dist/webwinkelkeur-magento1-${version}.tgz"
 
@@ -16,15 +35,15 @@ tmp="$(mktemp -d)"
 cleanup() { rm -rf "$tmp"; }
 trap cleanup EXIT
 
-git archive HEAD -- app modman package.xml README.md skin |
+git archive $ref -- app modman package.xml README.md skin |
 	tar x -C "$tmp"
 
 cd "$tmp"
 
-find -name '*.xml' -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} +
-find -name '*.xml' -exec perl -p -i -e 's~\$DATE\$~'"$(date +%Y-%m-%d)"'~g' {} +
-find -name '*.xml' -exec perl -p -i -e 's~\$TIME\$~'"$(date +%H:%M)"'~g' {} +
+find . -name '*.xml' -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} +
+find . -name '*.xml' -exec perl -p -i -e 's~\$DATE\$~'"$(date +%Y-%m-%d)"'~g' {} +
+find . -name '*.xml' -exec perl -p -i -e 's~\$TIME\$~'"$(date +%H:%M)"'~g' {} +
 
-tar czvf "$out" * >&2
+tar czf "$out" * >&2
 
 echo "$out"
