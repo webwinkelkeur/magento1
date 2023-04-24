@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+docker compose down -v
+rm -rf www
+
+tar xjf pkgs/magento-1944.txz
+
+docker compose up -d
+
+while ! ./bin/mysql -e "SELECT 1" &>/dev/null; do
+	sleep 0.1
+done
+
+./bin/mysql -e "CREATE DATABASE magento" >/dev/null
+cat pkgs/magento-1944.sql.xz | xz -d | ./bin/mysql magento

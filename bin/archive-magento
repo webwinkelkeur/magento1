@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+tar cJf pkgs/magento-1944.txz www/1944
+
+mysqldump \
+	--defaults-file=/dev/null \
+	-h 127.0.0.1 \
+	-P 21242 \
+	-uroot \
+	--skip-column-statistics \
+	--single-transaction \
+	magento |
+xz > pkgs/magento-1944.sql.xz
