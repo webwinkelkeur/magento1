@@ -25,6 +25,6 @@ find -name '*.xml' -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} +
 find -name '*.xml' -exec perl -p -i -e 's~\$DATE\$~'"$(date +%Y-%m-%d)"'~g' {} +
 find -name '*.xml' -exec perl -p -i -e 's~\$TIME\$~'"$(date +%H:%M)"'~g' {} +
 
-tar czvf "$out" * >&2
+tar czf "$out" * >&2
 
 echo "$out"
