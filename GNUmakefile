@@ -5,7 +5,7 @@ watch :
 .PHONY : watch
 
 install :
-	tar xf $$(./bin/package --dirty) -C www/1944 app skin
+	tar xf "$$(./bin/package --dirty)" -C www/1944 app skin
 .PHONY : install
 
 clear-cache :
