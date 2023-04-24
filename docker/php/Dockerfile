@@ -10,10 +10,12 @@ RUN apk add --no-cache \
 	php7-xml \
 	php7-simplexml \
 	php7-session \
+	php7-mbstring \
 	php7-iconv \
 	php7-json \
 	php7-curl \
-	php7-dom
+	php7-dom \
+	php7-phar
 
 COPY entrypoint.sh /entrypoint.sh
 

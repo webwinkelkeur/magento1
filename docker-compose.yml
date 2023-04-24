@@ -6,6 +6,7 @@ services:
         volumes:
             - ./www/1944:/var/www/localhost/htdocs
             - ./docker/php/apache2.conf:/etc/apache2/conf.d/local.conf
+            - ./vendor/n98-magerun:/usr/local/bin/magerun
         links:
             - mysql
         ports:
