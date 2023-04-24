@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 docker compose down -v
 rm -rf www
 
-tar xjf pkgs/magento-1944.txz
+tar xJf pkgs/magento-1944.txz
 
 docker compose up -d
 
