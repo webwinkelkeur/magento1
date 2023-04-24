@@ -21,9 +21,9 @@ git archive HEAD -- app modman package.xml README.md skin |
 
 cd "$tmp"
 
-find -name '*.xml' -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} +
-find -name '*.xml' -exec perl -p -i -e 's~\$DATE\$~'"$(date +%Y-%m-%d)"'~g' {} +
-find -name '*.xml' -exec perl -p -i -e 's~\$TIME\$~'"$(date +%H:%M)"'~g' {} +
+find . -name '*.xml' -exec perl -p -i -e 's~\$VERSION\$~'"$version"'~g' {} +
+find . -name '*.xml' -exec perl -p -i -e 's~\$DATE\$~'"$(date +%Y-%m-%d)"'~g' {} +
+find . -name '*.xml' -exec perl -p -i -e 's~\$TIME\$~'"$(date +%H:%M)"'~g' {} +
 
 tar czf "$out" * >&2
 
