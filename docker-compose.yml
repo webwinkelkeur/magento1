@@ -1,25 +1,26 @@
-version: '3.7'
+version: "3.7"
 
 services:
-    php:
-        build: docker/php
-        volumes:
-            - ./www/1944:/var/www/localhost/htdocs
-            - ./docker/php/apache2.conf:/etc/apache2/conf.d/local.conf
-            - ./vendor/n98-magerun:/usr/local/bin/magerun
-        links:
-            - mysql
-        ports:
-            - 21241:80
+  php:
+    build: docker/php
+    volumes:
+      - ./www/1944:/var/www/localhost/htdocs
+      - ./docker/php/apache2.conf:/etc/apache2/conf.d/local.conf
+      - ./docker/php/php.ini:/etc/php7/conf.d/99-docker.ini
+      - ./vendor/n98-magerun:/usr/local/bin/magerun
+    links:
+      - mysql
+    ports:
+      - 21241:80
 
-    mysql:
-        image: mariadb:10.3
-        volumes:
-            - mysql:/var/lib/mysql
-        environment:
-            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-        ports:
-            - 21242:3306
+  mysql:
+    image: mariadb:10.3
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - 21242:3306
 
 volumes:
-    mysql:
+  mysql:
