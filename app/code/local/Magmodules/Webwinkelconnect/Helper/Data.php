@@ -69,4 +69,12 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         return $html;
     }
 
+    public function getApiKey() {
+        return Mage::getStoreConfig('webwinkelconnect/general/api_key');
+    }
+
+    public function getShopId() {
+        return Mage::getStoreConfig('webwinkelconnect/general/api_id');
+    }
+
 }
