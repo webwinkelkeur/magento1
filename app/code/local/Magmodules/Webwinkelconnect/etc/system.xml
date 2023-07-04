@@ -218,6 +218,17 @@
                             <show_in_store>1</show_in_store>
                             <comment><![CDATA[Send product review invitation?]]></comment>
                         </enabled>
+                        <rating>
+                            <label>Rating</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Magmodules_Webwinkelconnect_Model_Rating</source_model>
+                            <depends><enabled>1</enabled></depends>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Tie incoming ratings from the dashboard to this Magento rating.</comment>
+                        </rating>
                     </fields>
                 </product_review_invites>
                 <frontend translate="label">
@@ -264,7 +275,7 @@
                             <tooltip>Use the Magento Cronjob to use the automatically import. A cronjob is a daemon which keeps running and gets activated at a said interval (time period). Please make sure your default Magento Cron is working. If not, contact your hosting company for help.</tooltip>
                         </cron>
                         <cron_stats translate="label">
-                            <label>Update Summary</label>
+                            <label>Update Summary</label>±
                             <frontend_type>select</frontend_type>
                             <source_model>webwinkelconnect/system_config_source_cronfrequency</source_model>
                             <sort_order>2</sort_order>

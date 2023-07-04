@@ -48,4 +48,37 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
         }
     }
 
+    /**
+     * @throws Exception
+     */
+    public function syncAction() {
+        $request_data = trim(file_get_contents('php://input'));
+        $helper = Mage::helper('webwinkelconnect');
+        if (!$request_data) {
+            $helper->returnResponseCode(400, 'Empty request data');
+        }
+        if (!$request_data = json_decode($request_data, true)) {
+            $helper->returnResponseCode(400, 'Invalid JSON data provided');
+        }
+
+
+        if (
+            !$helper->hasCredentialFields($request_data['webshop_id'], $request_data['api_key'])
+            || $helper->credentialsEmpty($request_data['webshop_id'], $request_data['api_key'])
+        ) {
+            $helper->returnResponseCode(403,'Missing credential fields');
+        }
+
+        $helper->isAuthorized($request_data['webshop_id'], $request_data['api_key']);
+
+        if (empty(Mage::getResourceSingleton('catalog/product')->getProductsSku([$request_data['product_review']['product_id']]))) {
+            $helper->returnResponseCode(404,sprintf('Could not find product with ID (%d)', $request_data['product_review']['product_id']));
+        }
+
+        if (!Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
+            $helper->returnResponseCode(403,'Product review sync is disabled.');
+        }
+
+        $helper->syncProductReview($request_data);
+    }
 }
