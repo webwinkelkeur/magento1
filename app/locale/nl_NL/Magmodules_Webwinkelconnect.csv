@@ -148,3 +148,6 @@
 "Language of the review invitation email, leave empty for default language. Option only available for member with an EU membership","Taal van de uitnodigingsemail. Laat leeg om de standaardtaal te gebruiken. Optie alleen beschikbaar binnen het EU pakket."
 "Resend if Double","Stuur opnieuw indien dubbel"
 "If set to ""Yes"", customers will get new review reminders for every new order.","Indien ""Ja"" ontvangen de klanten een nieuwe uitnodiging na elke bestelling."
+"Invitation to write product review","Uitnodiging om een productreview te schrijven"
+"WebwinkelKeur can invite your customers to write product reviews.<br/><br/>","WebwinkelKeur kan jouw klanten uitnodigen om een productreview te schrijven.<br/><br/>"
+"Send product review invitation?","Productreview uitnodiging versturen?"

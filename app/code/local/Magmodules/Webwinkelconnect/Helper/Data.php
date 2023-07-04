@@ -69,12 +69,29 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         return $html;
     }
 
-    public function getApiKey() {
+    public function getApiKey(): string {
         return Mage::getStoreConfig('webwinkelconnect/general/api_key');
     }
 
-    public function getShopId() {
+    public function getShopId(): string {
         return Mage::getStoreConfig('webwinkelconnect/general/api_id');
+    }
+
+    public function isProductReviewInviteEnabled(): bool {
+        if (!Mage::getStoreConfig('webwinkelconnect/general/enabled')) {
+            return false;
+        }
+        if (!Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
+            return false;
+        }
+        if ($this->getApiKey() == '') {
+            return false;
+        }
+        if ($this->getShopId() == '') {
+            return false;
+        }
+
+        return true;
     }
 
 }
