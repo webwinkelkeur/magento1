@@ -69,12 +69,18 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         return $html;
     }
 
-    public function getApiKey(): string {
-        return Mage::getStoreConfig('webwinkelconnect/general/api_key');
+    public function getApiKey(): ?string {
+        $api_key = Mage::getStoreConfig('webwinkelconnect/general/api_key');
+        return $api_key && $api_key != ''
+            ? $api_key
+            : null;
     }
 
-    public function getShopId(): string {
-        return Mage::getStoreConfig('webwinkelconnect/general/api_id');
+    public function getShopId(): ?string {
+        $shop_id = Mage::getStoreConfig('webwinkelconnect/general/api_id');
+        return $shop_id && $shop_id != ''
+            ? $shop_id
+            : null;
     }
 
     public function isProductReviewInviteEnabled(): bool {
@@ -84,10 +90,10 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         if (!Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
             return false;
         }
-        if ($this->getApiKey() == '') {
+        if ($this->getApiKey() === null) {
             return false;
         }
-        if ($this->getShopId() == '') {
+        if ($this->getShopId() === null) {
             return false;
         }
 

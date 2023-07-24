@@ -174,14 +174,16 @@ class Magmodules_Webwinkelconnect_Model_Observer
             'api_key' => $helper->getApiKey(),
             'url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'webwinkelkeur/index/sync',
         ]);
-
-        $curl->write(Zend_Http_Client::POST, $url, '2', ['Content-Type:application/json'], $data);
-        $response = $curl->read();
-        if (!$response) {
+        try {
+            $curl->addOption(CURLOPT_FAILONERROR, 1);
+            $curl->write(Zend_Http_Client::POST, $url, '2', ['Content-Type:application/json'], $data);
+            $response = $curl->read();
+            if (!$response) {
+                throw new Exception(sprintf('Could not send sync URL to dashboard: (%s) %s',$curl->getErrno(), $curl->getError()));
+            }
+        } finally {
             $curl->close();
-            throw new Exception(sprintf('Could not send sync URL to dashboard: (%s) %s',$curl->getErrno(), $curl->getError()));
         }
-        $curl->close();
     }
 
 }
