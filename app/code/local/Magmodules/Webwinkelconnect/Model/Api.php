@@ -87,10 +87,12 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
         $postData['client'] = 'magento';
         $postData['language'] = $this->getLanguage($storeId, $order);
 
-        $postData['order_data'] = json_encode([
-            'order' => $order,
-            'products' => $this->getOrderProducts($order),
-        ]);
+        if (Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
+            $postData['order_data'] = json_encode([
+                'order' => $order,
+                'products' => $this->getOrderProducts($order),
+            ]);
+        }
 
         $url = 'https://dashboard.webwinkelkeur.nl/api/1.0/invitations.json?' .
             http_build_query([
