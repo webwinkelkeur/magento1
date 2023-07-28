@@ -77,52 +77,45 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
     {
         $startTime = microtime(true);
         $crontype = 'orderupdate';
-        $orderId = $order->getIncrementId();
         $storeId = $order->getStoreId();
         $apiId = trim(Mage::getStoreConfig('webwinkelconnect/general/api_id', $storeId));
         $apiKey = trim(Mage::getStoreConfig('webwinkelconnect/general/api_key', $storeId));
-        $delay = trim(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $storeId));
-        $language = Mage::getStoreConfig('webwinkelconnect/invitation/language', $storeId);
-        $resendDouble = Mage::getStoreConfig('webwinkelconnect/invitation/resend_double', $storeId);
+        $postData['email'] = $order->getCustomerEmail();
+        $postData['order'] = $order->getIncrementId();
+        $postData['delay'] = trim(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $storeId));
+        $postData['customer_name'] = $order->getCustomerName();
+        $postData['client'] = 'magento';
+        $postData['language'] = $this->getLanguage($storeId, $order);
 
-        $email = $order->getCustomerEmail();
-        $customerName = $order->getCustomerName();
+        $postData['order_data'] = json_encode([
+            'order' => $order,
+            'products' => $this->getOrderProducts($order),
+        ]);
 
-        $url = 'https://www.webwinkelkeur.nl/api.php?id=' . $apiId;
-        $url .= '&password=' . $apiKey . '&email=' . urlencode($email) . '&order=' . $orderId;
-        $url .= '&delay=' . $delay . '&client=magento&customername=' . urlencode($customerName);
+        $url = 'https://dashboard.webwinkelkeur.nl/api/1.0/invitations.json?' .
+            http_build_query([
+                'id' => $apiId,
+                'code' => $apiKey,
+            ]);
 
-        if (!$resendDouble) {
-            $url = $url . '&noremail=1';
-        }
-
-        if (!empty($language)) {
-            if ($language == 'cus') {
-                $lanArray = array('NL' => 'nld', 'EN' => 'eng', 'DE' => 'deu', 'FR' => 'fra', 'ES' => 'spa');
-                $address = $order->getShippingAddress();
-                if (isset($lanArray[$address->getCountry()])) {
-                    $url = $url . '&language=' . $lanArray[$address->getCountry()];
-                }
-            } else {
-                $url = $url . '&language=' . $language;
-            }
-        }
-
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_VERBOSE, 1);
-        curl_setopt($curl, CURLOPT_FAILONERROR, false);
-        curl_setopt($curl, CURLOPT_HEADER, 0);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $curl = new Varien_Http_Adapter_Curl();
+        $curl->setConfig([
+            'timeout'   => 10,
+        ]);
+        $curl->addOptions([
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR => true,
+        ]);
+        $curl->write(Zend_Http_Client::POST, $url, '2', false, $postData);
+        $response = $curl->read();
 
         if ($response) {
             $responseHtml = $response;
         } else {
-            $responseHtml = 'No response from https://www.webwinkelkeur.nl';
+            $responseHtml = sprintf('(%s) %s',$curl->getErrno(), $curl->getError());
         }
+        $curl->close();
 
         Mage::getModel('webwinkelconnect/log')->addToLog(
             'invitation', $order->getStoreId(),
@@ -157,6 +150,35 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
         }
 
         return $storeIds;
+    }
+
+    private function getOrderProducts(Mage_Sales_Model_Order $order): array {
+        $products = [];
+        foreach ($order->getAllItems() as $item) {
+            $product = $item->getProduct();
+            $products[] = [
+                'name' => $product->getName(),
+                'url' => $product->getProductUrl(),
+                'id' => $product->getEntityId(),
+                'sku' => $product->getSku(),
+                'image_url' => '',
+                'brand' => $product->getAttributeText('manufacturer'),
+            ];
+        }
+
+        return $products;
+    }
+
+    private function getLanguage(int $storeId, Mage_Sales_Model_Order $order): string {
+        $language = Mage::getStoreConfig('webwinkelconnect/invitation/language', $storeId);
+        if (empty($language) || $language == '') {
+            return explode('_', Mage::getStoreConfig('general/locale/code',$storeId))[1];
+        }
+        if ($language == 'cus') {
+            $address = $order->getShippingAddress();
+            return $address->getCountry();
+        }
+        return $language;
     }
 
 }

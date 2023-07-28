@@ -101,9 +101,6 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     public function hasCorrectCredentials(?string $webshop_id, ?string $api_key): bool {
-        if (!isset($webshop_id) || !isset($api_key)) {
-            return false;
-        }
         if (!trim($webshop_id) || !trim($api_key)) {
             return false;
         }
@@ -113,7 +110,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
-    public function syncProductReview(array $product_review): void {
+    public function syncProductReview(array $product_review): array {
         $connection = Mage::getSingleton('core/resource')->getConnection('core_write');
         try {
             $connection->beginTransaction();
@@ -139,8 +136,10 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             $review->save();
 
             $connection->commit();
+            return ['review_id' => $review->getId(), 'status' => 200];
         } catch (Exception $e) {
             $connection->rollback();
+            return ['error' => $e->getMessage(), 'status' => 500];
         }
     }
 
@@ -150,10 +149,4 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             ->loadByEmail($email)
             ->getId();
     }
-
-    public function returnResponseCode(int $code, string $message): void {
-        http_response_code($code);
-        die($message);
-    }
-
 }

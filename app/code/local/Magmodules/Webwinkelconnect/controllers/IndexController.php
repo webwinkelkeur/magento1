@@ -49,7 +49,6 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
 
     public function syncAction(): void {
         $request_data = file_get_contents('php://input');
-        $helper = Mage::helper('webwinkelconnect');
         if (!$request_data) {
             $this->getResponse()->setHttpResponseCode(400)->setBody('Empty request data');
             return;
@@ -59,9 +58,15 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
             return;
         }
 
-        if (!$helper->hasCorrectCredentials(strval($request_data['webshop_id']), strval($request_data['api_key'])))
-        {
-            $this->getResponse()->setHttpResponseCode(403)->setBody('Missing or incorrect credential fields');
+        if (!isset($request_data['webshop_id']) || !isset($request_data['api_key'])) {
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Missing one or more credential fields');
+            return;
+        }
+
+        $helper = Mage::helper('webwinkelconnect');
+
+        if (!$helper->hasCorrectCredentials(strval($request_data['webshop_id']), strval($request_data['api_key']))) {
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Empty or incorrect credential fields');
             return;
         }
 
@@ -75,6 +80,10 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
             return;
         }
 
-        $helper->syncProductReview($request_data);
+        if ($helper->syncProductReview($request_data)['status'] == 200) {
+            $this->getResponse()->setHttpResponseCode(200)->setBody(json_encode($helper->syncProductReview($request_data)));
+            return;
+        }
+        $this->getResponse()->setHttpResponseCode(500)->setBody(json_encode($helper->syncProductReview($request_data)['error']));
     }
 }
