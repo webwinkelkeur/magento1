@@ -227,7 +227,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment><![CDATA[Tie incoming ratings from the dashboard to this Magento rating.]]></comment>
+                            <comment><![CDATA[You can have multiple types of reviews for a product in your Magento shop. Via WebwinkelKeur, you get 1 overall product review each time. Which type in Magento do you want to link this to?]]></comment>
                         </rating>
                     </fields>
                 </product_review_invites>
