@@ -219,7 +219,7 @@
                             <comment><![CDATA[Send product review invitation?]]></comment>
                         </enabled>
                         <rating translate="label,comment">
-                            <label>Rating</label>
+                            <label><![CDATA[Rating]]></label>
                             <frontend_type>select</frontend_type>
                             <source_model>Magmodules_Webwinkelconnect_Model_Rating</source_model>
                             <depends><enabled>1</enabled></depends>
