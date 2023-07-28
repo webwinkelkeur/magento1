@@ -124,6 +124,17 @@
         </translate>
     </frontend>
     <adminhtml>
+        <events>
+            <admin_system_config_changed_section_webwinkelconnect>
+                <observers>
+                    <send_sync_url>
+                        <type>singleton</type>
+                        <class>webwinkelconnect/observer</class>
+                        <method>sendSyncUrl</method>
+                    </send_sync_url>
+                </observers>
+            </admin_system_config_changed_section_webwinkelconnect>
+        </events>
         <layout>
             <updates>
                 <magmodules_webwinkelconnect>

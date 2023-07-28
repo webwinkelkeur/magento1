@@ -158,5 +158,32 @@ class Magmodules_Webwinkelconnect_Model_Observer
             }
         }
     }
+    public function sendSyncUrl(): void {
+        $helper = Mage::helper('webwinkelconnect');
+        if (!$helper->isProductReviewInviteEnabled()) {
+            return;
+        }
+
+        $curl = new Varien_Http_Adapter_Curl();
+        $curl->setConfig([
+            'timeout'   => 10,
+        ]);
+        $url = 'https://dashboard.webwinkelkeur.nl/webshops/sync_url';
+        $data = json_encode([
+            'webshop_id' => $helper->getShopId(),
+            'api_key' => $helper->getApiKey(),
+            'url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'webwinkelkeur/index/sync',
+        ]);
+        try {
+            $curl->addOption(CURLOPT_FAILONERROR, 1);
+            $curl->write(Zend_Http_Client::POST, $url, '2', ['Content-Type:application/json'], $data);
+            $response = $curl->read();
+            if (!$response) {
+                throw new Exception(sprintf('Could not send sync URL to dashboard: (%s) %s',$curl->getErrno(), $curl->getError()));
+            }
+        } finally {
+            $curl->close();
+        }
+    }
 
 }
