@@ -100,41 +100,48 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
-    public function hasCredentialFields(?string $webshop_id, ?string $api_key): bool {
-        return isset($webshop_id) && isset($api_key);
-    }
-
-    public function credentialsEmpty(?string $webshop_id, ?string $api_key): bool {
-        return !trim($webshop_id) || !trim($api_key);
-    }
-
-    public function isAuthorized(string $webshop_id, string $api_key): void {
-        if ($webshop_id == $this->getShopId() && hash_equals($api_key, $this->getApiKey())) {
-            return;
+    public function hasCorrectCredentials(?string $webshop_id, ?string $api_key): bool {
+        if (!isset($webshop_id) || !isset($api_key)) {
+            return false;
         }
-        $this->returnResponseCode(401, 'Wrong credentials');
+        if (!trim($webshop_id) || !trim($api_key)) {
+            return false;
+        }
+        if ($webshop_id != $this->getShopId() || !hash_equals($api_key, $this->getApiKey())) {
+            return false;
+        }
+        return true;
     }
 
     public function syncProductReview(array $product_review): void {
-        $review = Mage::getModel('review/review')
-            ->setEntityPkValue($product_review['product_review']['product_id'])
-            ->setStatusId(Mage_Review_Model_Review::STATUS_PENDING)
-            ->setTitle($product_review['product_review']['title'])
-            ->setDetail(str_replace('<br>', "\n", $product_review['product_review']['review']))
-            ->setEntityId(1)
-            ->setStoreId(Mage::app()->getStore()->getStoreId())
-            ->setStores([Mage::app()->getStore()->getStoreId()])
-            ->setCustomerId($this->getCustomerId($product_review['product_review']['reviewer']['email']))
-            ->setNickname($product_review['product_review']['reviewer']['name'])
-            ->save();
+        $connection = Mage::getSingleton('core/resource')->getConnection('core_write');
+        try {
+            $connection->beginTransaction();
 
-        Mage::getModel('rating/rating')
-            ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
-            ->setReviewId($review->getId())
-            ->addOptionVote($product_review['product_review']['rating'], $product_review['product_review']['product_id']);
-        $review->aggregate();
-        $review->setCreatedAt(DateTime::createFromFormat('Y-m-d H:i:s', $product_review['created']));
-        $review->save();
+            ($review = Mage::getModel('review/review'))
+                ->setEntityPkValue($product_review['product_review']['product_id'])
+                ->setStatusId(Mage_Review_Model_Review::STATUS_PENDING)
+                ->setTitle($product_review['product_review']['title'])
+                ->setDetail($product_review['product_review']['review'])
+                ->setEntityId($review->getEntityIdByCode(Mage_Review_Model_Review::ENTITY_PRODUCT_CODE))
+                ->setStoreId(Mage::app()->getStore()->getStoreId())
+                ->setStores([Mage::app()->getStore()->getStoreId()])
+                ->setCustomerId($this->getCustomerId($product_review['product_review']['reviewer']['email']))
+                ->setNickname($product_review['product_review']['reviewer']['name'])
+                ->save();
+
+            Mage::getModel('rating/rating')
+                ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
+                ->setReviewId($review->getId())
+                ->addOptionVote($product_review['product_review']['rating'], $product_review['product_review']['product_id']);
+            $review->aggregate();
+            $review->setCreatedAt(DateTime::createFromFormat('Y-m-d H:i:s', $product_review['created']));
+            $review->save();
+
+            $connection->commit();
+        } catch (Exception $e) {
+            $connection->rollback();
+        }
     }
 
     private function getCustomerId(string $email):? int {

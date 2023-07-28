@@ -21,7 +21,6 @@
  
 class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_Front_Action
 {
-    
     public function indexAction() 
     {
         $enabled = Mage::getStoreConfig('webwinkelconnect/general/enabled');
@@ -48,35 +47,32 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    public function syncAction() {
-        $request_data = trim(file_get_contents('php://input'));
+    public function syncAction(): void {
+        $request_data = file_get_contents('php://input');
         $helper = Mage::helper('webwinkelconnect');
         if (!$request_data) {
-            $helper->returnResponseCode(400, 'Empty request data');
+            $this->getResponse()->setHttpResponseCode(400)->setBody('Empty request data');
+            return;
         }
         if (!$request_data = json_decode($request_data, true)) {
-            $helper->returnResponseCode(400, 'Invalid JSON data provided');
+            $this->getResponse()->setHttpResponseCode(400)->setBody('Invalid JSON data provided');
+            return;
         }
 
-
-        if (
-            !$helper->hasCredentialFields($request_data['webshop_id'], $request_data['api_key'])
-            || $helper->credentialsEmpty($request_data['webshop_id'], $request_data['api_key'])
-        ) {
-            $helper->returnResponseCode(403,'Missing credential fields');
+        if (!$helper->hasCorrectCredentials(strval($request_data['webshop_id']), strval($request_data['api_key'])))
+        {
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Missing or incorrect credential fields');
+            return;
         }
 
-        $helper->isAuthorized($request_data['webshop_id'], $request_data['api_key']);
-
-        if (empty(Mage::getResourceSingleton('catalog/product')->getProductsSku([$request_data['product_review']['product_id']]))) {
-            $helper->returnResponseCode(404,sprintf('Could not find product with ID (%d)', $request_data['product_review']['product_id']));
+        if (!Mage::getModel('catalog/product')->load(strval($request_data['product_review']['product_id']))->getId()) {
+            $this->getResponse()->setHttpResponseCode(404)->setBody(sprintf('Could not find product with ID (%d)', $request_data['product_review']['product_id']));
+            return;
         }
 
         if (!Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
-            $helper->returnResponseCode(403,'Product review sync is disabled.');
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Product review sync is disabled');
+            return;
         }
 
         $helper->syncProductReview($request_data);
