@@ -185,4 +185,49 @@ class Magmodules_Webwinkelconnect_Model_Observer
             $curl->close();
         }
     }
+
+
+    public function addOrderDataJsonThankYouPage(): void {
+        if (Mage::app()->getFrontController()->getAction()->getFullActionName() != 'checkout_onepage_success') {
+            return;
+        }
+
+        if (!Mage::getStoreConfig('webwinkelconnect/privacy_first_option/privacy_popup')) {
+            return;
+        }
+
+        $session = Mage::getSingleton('checkout/type_onepage')->getCheckout();
+        $session->getLastSuccessQuoteId();
+        $order_id = $session->getLastOrderId();
+        if(is_null($order_id)){
+            $order_id = Mage::getSingleton('checkout/session')->getLastOrderId();
+        }
+        $order = Mage::getModel('sales/order')->load($order_id);
+
+        $order_data = [
+            'webshopId' => Mage::helper('webwinkelconnect')->getShopId(),
+            'orderNumber' => $order->getIncrementId(),
+            'email' => $order->getCustomerEmail(),
+            'firstName' => $order->getData('customer_firstname'),
+            'inviteDelay' => Mage::getStoreConfig('webwinkelconnect/invitation/delay'),
+        ];
+        try {
+            $order_data['signature'] = Mage::helper('webwinkelconnect/Hash')->getHashForDash($order_data);
+        } catch (Magmodules_Webwinkelconnect_Exception $e) {
+            Mage::logException($e);
+        }
+
+        $this->appendJs($order_data);
+    }
+
+    private function appendJs(array $order_data): void {
+        $layout = Mage::app()->getLayout();
+        $block = $layout->createBlock('core/text');
+        $block->setText(sprintf(
+            '<script type="application/json" id ="%s_order_completed">%s</script>',
+            htmlentities('webwinkelkeur'),
+            json_encode($order_data, JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS)
+        ));
+        $layout->getBlock('head')->append($block);
+    }
 }

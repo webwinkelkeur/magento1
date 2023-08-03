@@ -73,13 +73,12 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
      * @param $order
      * @return bool
      */
-    public function sendInvitation($order)
+    public function sendInvitation(Mage_Sales_Model_Order $order): bool
     {
         $startTime = microtime(true);
         $crontype = 'orderupdate';
         $storeId = $order->getStoreId();
-        $apiId = trim(Mage::getStoreConfig('webwinkelconnect/general/api_id', $storeId));
-        $apiKey = trim(Mage::getStoreConfig('webwinkelconnect/general/api_key', $storeId));
+        $helper = Mage::helper('webwinkelconnect');
         $postData['email'] = $order->getCustomerEmail();
         $postData['order'] = $order->getIncrementId();
         $postData['delay'] = intval(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $storeId));
@@ -89,7 +88,7 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
         $postData['language'] = $this->getLanguage($storeId, $order);
 
         if (Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
-            $postData['order_data'] = json_encode([
+            $post_data['order_data'] = json_encode([
                 'order' => $order,
                 'products' => $this->getOrderProducts($order),
             ]);
@@ -97,9 +96,15 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
 
         $url = 'https://dashboard.webwinkelkeur.nl/api/1.0/invitations.json?' .
             http_build_query([
-                'id' => $apiId,
-                'code' => $apiKey,
+                'id' => $helper->getShopId(),
+                'code' => $helper->getApiKey(),
             ]);
+
+        if (Mage::getStoreConfig('webwinkelconnect/privacy_first_option/privacy_popup')) {
+            if (!Mage::helper('webwinkelconnect')->hasConsent($order)) {
+                return false;
+            }
+        }
 
         $curl = new Varien_Http_Adapter_Curl();
         $curl->setConfig([
@@ -110,7 +115,7 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_FAILONERROR => true,
         ]);
-        $curl->write(Zend_Http_Client::POST, $url, '2', false, $postData);
+        $curl->write(Zend_Http_Client::POST, $url, '2', false, $post_data);
         $response = $curl->read();
 
         if ($response) {

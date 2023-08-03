@@ -165,6 +165,91 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
+
+    public function hasConsent(Mage_Sales_Model_Order $order): bool {
+        $permission_url = 'https://dashboard.webwinkelkeur.nl/api/2.0/order_permissions.json?' .
+            http_build_query([
+                'orderNumber' => $order->getIncrementId(),
+                'id' => $this->getShopId(),
+                'code' => $this->getApiKey(),
+            ]);
+
+        $curl = new Varien_Http_Adapter_Curl();
+        $curl->setConfig([
+            'timeout'   => 10,
+        ]);
+        $curl->addOptions([
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR => true,
+        ]);
+        $curl->write(Zend_Http_Client::GET, $permission_url, '2', false, $order->getIncrementId());
+        $response = $curl->read();
+        $log = Mage::getModel('webwinkelconnect/log');
+        $start_time = microtime(true);
+        if ($response) {
+            $response_html = Zend_Http_Response::fromString($response);
+        } else {
+            $log->addToLog(
+                'invitation',
+                $order->getStoreId(),
+                '',
+                $this->__(
+                    sprintf(
+                        'Curl error number: %s. Curl error message: %s',
+                        $curl->getErrno(),
+                        $curl->getError()
+                    )
+                ),
+                (microtime(true) - $start_time),
+                'orderupdate',
+                $permission_url,
+                $order->getId()
+            );
+            return false;
+        }
+        if($response_html->getStatus() != 200) {
+            $log->addToLog(
+                'invitation',
+                $order->getStoreId(),
+                '',
+                $this->__(
+                    sprintf(
+                        'Response code: %s. Response body: %s',
+                        $response_html->getStatus(),
+                        $response_html->getBody()
+                    )
+                ),
+                (microtime(true) - $start_time),
+                'orderupdate',
+                $permission_url,
+                $order->getId()
+            );
+            return false;
+        }
+        $decoded_body = json_decode($response_html->getBody());
+        if (!$decoded_body->has_consent) {
+            $log->addToLog(
+                'invitation',
+                $order->getStoreId(),
+                '',
+                $this->__(
+                    sprintf(
+                        'Invitation has not been sent as the customer did not consent. Response code: %s. Response body: %s',
+                        $response_html->getStatus(),
+                        $response_html->getBody()
+                    )
+                ),
+                (microtime(true) - $start_time),
+                'orderupdate',
+                $permission_url,
+                $order->getId()
+            );
+            return false;
+        }
+        return true;
+    }
+
     private function getCustomerId(string $email):? int {
         return Mage::getModel('customer/customer')
             ->setWebsiteId(Mage::app()->getWebsite()->getId())

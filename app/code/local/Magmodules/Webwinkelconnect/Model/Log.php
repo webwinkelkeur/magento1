@@ -38,43 +38,41 @@ class Magmodules_Webwinkelconnect_Model_Log extends Mage_Core_Model_Abstract
      * @param string $apiUrl
      * @param string $orderId
      */
-    public function addToLog($type, $storeId, $review = '', $inivation = '', $time, $cronType = '', $apiUrl = '', $orderId = '')
+    public function addToLog($type, $storeId, $review = '', $inivation = '', $time, $cronType = '', $apiUrl = '', $orderId = ''): void
     {
-        if (Mage::getStoreConfig('webwinkelconnect/log/enabled')) {
-            $apiId = Mage::getStoreConfig('webwinkelconnect/general/api_id', $storeId);
-            $company = Mage::getStoreConfig('webwinkelconnect/general/company', $storeId);
-            $reviewUpdates = '';
-            $reviewNew = '';
+        if (!Mage::getStoreConfig('webwinkelconnect/log/enabled')) {
+            return;
+        }
+        $company = Mage::getStoreConfig('webwinkelconnect/general/company', $storeId);
+        $reviewUpdates = '';
+        $reviewNew = '';
 
-            if ($review) {
-                $company = $review['company'];
-                if (!empty($review['review_updates'])) {
-                    $reviewUpdates = $review['review_updates'];
-                } else {
-                    $reviewUpdates = 0;
-                }
-
-                if (!empty($review['review_new'])) {
-                    $reviewNew = $review['review_new'];
-                } else {
-                    $reviewNew = 0;
-                }
+        if ($review) {
+            $company = $review['company'];
+            if (!empty($review['review_updates'])) {
+                $reviewUpdates = $review['review_updates'];
+            } else {
+                $reviewUpdates = 0;
             }
 
-            $model = Mage::getModel('webwinkelconnect/log');
-            $model->setType($type)
-                ->setShopId($apiId)
-                ->setCompany($company)
-                ->setReviewUpdate($reviewUpdates)
-                ->setReviewNew($reviewNew)
-                ->setResponse($inivation)
-                ->setOrderId($orderId)
-                ->setCron($cronType)
-                ->setDate(now())
-                ->setTime($time)
-                ->setApiUrl($apiUrl)
-                ->save();
+            if (!empty($review['review_new'])) {
+                $reviewNew = $review['review_new'];
+            } else {
+                $reviewNew = 0;
+            }
         }
-    }
 
+        Mage::getModel('webwinkelconnect/log')->setType($type)
+            ->setShopId(Mage::getStoreConfig('webwinkelconnect/general/api_id', $storeId))
+            ->setCompany($company)
+            ->setReviewUpdate($reviewUpdates)
+            ->setReviewNew($reviewNew)
+            ->setResponse($inivation)
+            ->setOrderId($orderId)
+            ->setCron($cronType)
+            ->setDate(now())
+            ->setTime($time)
+            ->setApiUrl($apiUrl)
+            ->save();
+    }
 }

@@ -188,6 +188,27 @@
                         </backlog>
                     </fields>
                 </invitation>
+                <privacy_first_option translate="label,comment">
+                    <label><![CDATA[Privacy first option]]></label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>3</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <privacy_popup translate="label,comment">
+                            <label><![CDATA[Pop-up after purchase at "thank you" page.]]></label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment><![CDATA[Privacy first review option: order data will only be shared after permission from the customer.]]></comment>
+                        </privacy_popup>
+                    </fields>
+                </privacy_first_option>
                 <product_review_invites translate="label,comment">
                     <label><![CDATA[Invitation to write product review]]></label>
                     <frontend_type>text</frontend_type>
