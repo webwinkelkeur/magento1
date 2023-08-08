@@ -132,14 +132,13 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                 ->setReviewId($review->getId())
                 ->addOptionVote($product_review['product_review']['rating'], $product_review['product_review']['product_id']);
             $review->aggregate();
-            $review->setCreatedAt(DateTime::createFromFormat('Y-m-d H:i:s', $product_review['created']));
+            $review->setCreatedAt(DateTime::createFromFormat('Y-m-d H:i:s', $product_review['product_review']['created']));
             $review->save();
 
             $connection->commit();
-            return ['review_id' => $review->getId(), 'status' => 200];
+            return ['message' => $review->getId(), 'code' => 200];
         } catch (Exception $e) {
-            $connection->rollback();
-            return ['error' => $e->getMessage(), 'status' => 500];
+            return ['message' => $e->getMessage(), 'code' => 500];
         }
     }
 

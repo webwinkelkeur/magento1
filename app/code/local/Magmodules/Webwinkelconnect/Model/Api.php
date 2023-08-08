@@ -82,9 +82,10 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
         $apiKey = trim(Mage::getStoreConfig('webwinkelconnect/general/api_key', $storeId));
         $postData['email'] = $order->getCustomerEmail();
         $postData['order'] = $order->getIncrementId();
-        $postData['delay'] = trim(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $storeId));
+        $postData['delay'] = intval(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $storeId));
         $postData['customer_name'] = $order->getCustomerName();
-        $postData['client'] = 'magento';
+        $postData['client'] = 'magento1';
+        $postData['platform_version'] = Mage::getVersion();
         $postData['language'] = $this->getLanguage($storeId, $order);
 
         if (Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
@@ -163,7 +164,7 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
                 'url' => $product->getProductUrl(),
                 'id' => $product->getEntityId(),
                 'sku' => $product->getSku(),
-                'image_url' => '',
+                'image_url' => $product->getImageUrl(),
                 'brand' => $product->getAttributeText('manufacturer'),
             ];
         }
@@ -173,12 +174,12 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
 
     private function getLanguage(int $storeId, Mage_Sales_Model_Order $order): string {
         $language = Mage::getStoreConfig('webwinkelconnect/invitation/language', $storeId);
-        if (empty($language) || $language == '') {
-            return explode('_', Mage::getStoreConfig('general/locale/code',$storeId))[1];
+        if (empty($language)) {
+            return explode('_', Mage::getStoreConfig('general/locale/code',$storeId))[0];
         }
         if ($language == 'cus') {
             $address = $order->getShippingAddress();
-            return $address->getCountry();
+            return strtolower($address->getCountry());
         }
         return $language;
     }

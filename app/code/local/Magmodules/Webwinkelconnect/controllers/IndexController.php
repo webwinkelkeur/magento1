@@ -79,11 +79,8 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
             $this->getResponse()->setHttpResponseCode(403)->setBody('Product review sync is disabled');
             return;
         }
-
-        if ($helper->syncProductReview($request_data)['status'] == 200) {
-            $this->getResponse()->setHttpResponseCode(200)->setBody(json_encode($helper->syncProductReview($request_data)));
-            return;
-        }
-        $this->getResponse()->setHttpResponseCode(500)->setBody(json_encode($helper->syncProductReview($request_data)['error']));
+        $this->getResponse()
+            ->setHttpResponseCode($helper->syncProductReview($request_data)['code'])
+            ->setBody($helper->syncProductReview($request_data)['message']);
     }
 }
