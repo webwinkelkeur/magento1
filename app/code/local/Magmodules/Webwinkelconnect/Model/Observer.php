@@ -164,25 +164,29 @@ class Magmodules_Webwinkelconnect_Model_Observer
             return;
         }
 
-        $curl = new Varien_Http_Adapter_Curl();
-        $curl->setConfig([
-            'timeout'   => 10,
-        ]);
         $url = 'https://dashboard.webwinkelkeur.nl/webshops/sync_url';
         $data = json_encode([
             'webshop_id' => $helper->getShopId(),
             'api_key' => $helper->getApiKey(),
             'url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'webwinkelkeur/index/sync',
         ]);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         try {
-            $curl->addOption(CURLOPT_FAILONERROR, 1);
-            $curl->write(Zend_Http_Client::POST, $url, '2', ['Content-Type:application/json'], $data);
-            $response = $curl->read();
-            if (!$response) {
-                throw new Exception(sprintf('Could not send sync URL to dashboard: (%s) %s',$curl->getErrno(), $curl->getError()));
+            $response = curl_exec($ch);
+            if ($response === false) {
+                throw new Exception(sprintf('Could not send sync URL to dashboard: %s', curl_error($ch)));
             }
         } finally {
-            $curl->close();
+            curl_close($ch);
         }
     }
 

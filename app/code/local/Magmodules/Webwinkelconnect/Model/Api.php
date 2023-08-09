@@ -75,17 +75,16 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
      */
     public function sendInvitation(Mage_Sales_Model_Order $order): bool
     {
-        $startTime = microtime(true);
-        $crontype = 'orderupdate';
-        $storeId = $order->getStoreId();
+        $start_time = microtime(true);
+        $store_id = $order->getStoreId();
         $helper = Mage::helper('webwinkelconnect');
-        $postData['email'] = $order->getCustomerEmail();
-        $postData['order'] = $order->getIncrementId();
-        $postData['delay'] = intval(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $storeId));
-        $postData['customer_name'] = $order->getCustomerName();
-        $postData['client'] = 'magento1';
-        $postData['platform_version'] = Mage::getVersion();
-        $postData['language'] = $this->getLanguage($storeId, $order);
+        $post_data['email'] = $order->getCustomerEmail();
+        $post_data['order'] = $order->getIncrementId();
+        $post_data['delay'] = trim(Mage::getStoreConfig('webwinkelconnect/invitation/delay', $store_id));
+        $post_data['customer_name'] = $order->getCustomerName();
+        $post_data['client'] = 'magento1';
+        $post_data['platform_version'] = Mage::getVersion();
+        $post_data['language'] = $this->getLanguage($store_id, $order);
 
         if (Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
             $post_data['order_data'] = json_encode([
@@ -100,42 +99,51 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
                 'code' => $helper->getApiKey(),
             ]);
 
-        if (Mage::getStoreConfig('webwinkelconnect/privacy_first_option/privacy_popup')) {
-            if (!Mage::helper('webwinkelconnect')->hasConsent($order)) {
+        if (
+            Mage::getStoreConfig('webwinkelconnect/privacy_first_option/privacy_popup')
+            && !Mage::helper('webwinkelconnect')->hasConsent($order)
+        ) {
+            return false;
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        try {
+            $response = curl_exec($ch);
+            if ($response === false) {
+                Mage::getModel('webwinkelconnect/log')->addToLog(
+                    'invitation',
+                    $order->getStoreId(),
+                    '',
+                    curl_error($ch),
+                    (microtime(true) - $start_time),
+                    'orderupdate',
+                    $url,
+                    $order->getId()
+                );
                 return false;
             }
+
+            Mage::getModel('webwinkelconnect/log')->addToLog(
+                'invitation',
+                $order->getStoreId(),
+                '',
+                json_decode($response)->message,
+                (microtime(true) - $start_time),
+                'orderupdate',
+                $url,
+                $order->getId()
+            );
+            return true;
+        } finally {
+            curl_close($ch);
         }
-
-        $curl = new Varien_Http_Adapter_Curl();
-        $curl->setConfig([
-            'timeout'   => 10,
-        ]);
-        $curl->addOptions([
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_FAILONERROR => true,
-        ]);
-        $curl->write(Zend_Http_Client::POST, $url, '2', false, $post_data);
-        $response = $curl->read();
-
-        if ($response) {
-            $responseHtml = $response;
-        } else {
-            $responseHtml = sprintf('(%s) %s',$curl->getErrno(), $curl->getError());
-        }
-        $curl->close();
-
-        Mage::getModel('webwinkelconnect/log')->addToLog(
-            'invitation', $order->getStoreId(),
-            '',
-            $responseHtml,
-            (microtime(true) - $startTime),
-            $crontype,
-            $url,
-            $order->getId()
-        );
-
-        return true;
     }
 
 

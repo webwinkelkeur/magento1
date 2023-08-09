@@ -174,70 +174,39 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                 'code' => $this->getApiKey(),
             ]);
 
-        $curl = new Varien_Http_Adapter_Curl();
-        $curl->setConfig([
-            'timeout'   => 10,
-        ]);
-        $curl->addOptions([
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_FAILONERROR => true,
-        ]);
-        $curl->write(Zend_Http_Client::GET, $permission_url, '2', false);
-        $response = $curl->read();
-        $log = Mage::getModel('webwinkelconnect/log');
         $start_time = microtime(true);
-        $message = '';
-        $response_html = '';
-        $decoded_body = '';
-        if ($response) {
-            $response_html = Zend_Http_Response::fromString($response);
-        } else {
-            $message = $this->__(
-                sprintf(
-                    'Curl error number: %s. Curl error message: %s',
-                    $curl->getErrno(),
-                    $curl->getError()
-                )
-            );
-        }
-        $curl->close();
-        if(!empty($response_html)) {
-            if ($response_html->getStatus() != 200) {
-                $message = $this->__(
-                    sprintf(
-                        'Response code: %s. Response body: %s',
-                        $response_html->getStatus(),
-                        $response_html->getBody()
-                    )
-                );
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_URL, $permission_url);
+        try {
+            $response = curl_exec($ch);
+            $message = '';
+            if ($response === false) {
+                $message = curl_error($ch);
             }
-            $decoded_body = json_decode($response_html->getBody());
+            if ($response && !json_decode($response)->has_consent) {
+                $message = 'Invitation has not been sent as the customer did not consent.';
+            }
+            if (!empty($message)) {
+                Mage::getModel('webwinkelconnect/log')->addToLog(
+                    'invitation',
+                    $order->getStoreId(),
+                    '',
+                    $message,
+                    (microtime(true) - $start_time),
+                    'orderupdate',
+                    $permission_url,
+                    $order->getId()
+                );
+                return false;
+            }
+            return true;
+        } finally {
+            curl_close($ch);
         }
-        if (empty($message) && $decoded_body && !$decoded_body->has_consent) {
-            $message = $this->__(
-                sprintf(
-                    'Invitation has not been sent as the customer did not consent. Response code: %s. Response body: %s',
-                    $response_html->getStatus(),
-                    $response_html->getBody()
-                )
-            );
-        }
-
-        if (!empty($message)) {
-            $log->addToLog(
-                'invitation',
-                $order->getStoreId(),
-                '',
-                $message,
-                (microtime(true) - $start_time),
-                'orderupdate',
-                $permission_url,
-                $order->getId()
-            );
-            return false;
-        }
-        return true;
     }
 
     private function getCustomerId(string $email):? int {

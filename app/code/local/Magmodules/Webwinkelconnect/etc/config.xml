@@ -116,13 +116,6 @@
                     <frontName>webwinkelkeur</frontName>
                 </args>
             </webwinkelconnect>
-            <checkout>
-                <args>
-                    <modules>
-                        <webwinkelconnect before="Mage_Checkout">Magmodules_Webwinkelconnect</webwinkelconnect>
-                    </modules>
-                </args>
-            </checkout>
         </routers>
         <layout>
             <updates>

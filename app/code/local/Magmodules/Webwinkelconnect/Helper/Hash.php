@@ -10,7 +10,7 @@ class Magmodules_Webwinkelconnect_Helper_Hash extends Mage_Core_Helper_Abstract
             throw Mage::exception(
                 'Magmodules_Webwinkelconnect',
                 $helper->__(
-                    'Could not add order data for Webwinkelkeur dashboard to "thank you page" because of invalid keys'
+                    'Could not add order data for WebwinkelKeur dashboard to the checkout success because the shop ID or API key are missing'
                 )
             );
         }
