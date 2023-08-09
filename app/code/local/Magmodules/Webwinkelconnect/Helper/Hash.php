@@ -6,7 +6,7 @@ class Magmodules_Webwinkelconnect_Helper_Hash extends Mage_Core_Helper_Abstract
 
     public function getHashForDash(array $data): string {
         $helper = Mage::helper('webwinkelconnect');
-        if (!$helper->getShopId() || $helper->getApiKey()) {
+        if (!$helper->getShopId() || !$helper->getApiKey()) {
             throw Mage::exception(
                 'Magmodules_Webwinkelconnect',
                 $helper->__(

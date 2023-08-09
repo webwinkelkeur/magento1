@@ -98,7 +98,7 @@
     </global>
     <frontend>
         <events>
-            <controller_action_layout_render_before_checkout_onepage_success>
+            <checkout_onepage_controller_success_action>
                 <observers>
                     <connector>
                         <type>singleton</type>
@@ -106,7 +106,7 @@
                         <method>addOrderDataJsonThankYouPage</method>
                     </connector>
                 </observers>
-            </controller_action_layout_render_before_checkout_onepage_success>
+            </checkout_onepage_controller_success_action>
         </events>
         <routers>
             <webwinkelconnect>
@@ -116,6 +116,13 @@
                     <frontName>webwinkelkeur</frontName>
                 </args>
             </webwinkelconnect>
+            <checkout>
+                <args>
+                    <modules>
+                        <webwinkelconnect before="Mage_Checkout">Magmodules_Webwinkelconnect</webwinkelconnect>
+                    </modules>
+                </args>
+            </checkout>
         </routers>
         <layout>
             <updates>

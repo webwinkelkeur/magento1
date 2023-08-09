@@ -187,7 +187,7 @@ class Magmodules_Webwinkelconnect_Model_Observer
     }
 
 
-    public function addOrderDataJsonThankYouPage(): void {
+    public function addOrderDataJsonThankYouPage(Varien_Event_Observer $observer): void {
         if (Mage::app()->getFrontController()->getAction()->getFullActionName() != 'checkout_onepage_success') {
             return;
         }
@@ -196,14 +196,12 @@ class Magmodules_Webwinkelconnect_Model_Observer
             return;
         }
 
-        $session = Mage::getSingleton('checkout/type_onepage')->getCheckout();
-        $session->getLastSuccessQuoteId();
-        $order_id = $session->getLastOrderId();
-        if(is_null($order_id)){
-            $order_id = Mage::getSingleton('checkout/session')->getLastOrderId();
+        $order_id = $observer->getEvent()->getOrderIds()[0];
+        if (!$order_id) {
+            return;
         }
-        $order = Mage::getModel('sales/order')->load($order_id);
 
+        $order = Mage::getModel('sales/order')->load($order_id);
         $order_data = [
             'webshopId' => Mage::helper('webwinkelconnect')->getShopId(),
             'orderNumber' => $order->getIncrementId(),
@@ -217,17 +215,7 @@ class Magmodules_Webwinkelconnect_Model_Observer
             Mage::logException($e);
         }
 
-        $this->appendJs($order_data);
-    }
-
-    private function appendJs(array $order_data): void {
-        $layout = Mage::app()->getLayout();
-        $block = $layout->createBlock('core/text');
-        $block->setText(sprintf(
-            '<script type="application/json" id ="%s_order_completed">%s</script>',
-            htmlentities('webwinkelkeur'),
-            json_encode($order_data, JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS)
-        ));
-        $layout->getBlock('head')->append($block);
+        $block = Mage::app()->getLayout()->getBlock('head.privacypopup');
+        $block->setOrderData($order_data);
     }
 }

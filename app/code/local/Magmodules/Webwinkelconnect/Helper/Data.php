@@ -183,63 +183,53 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_FAILONERROR => true,
         ]);
-        $curl->write(Zend_Http_Client::GET, $permission_url, '2', false, $order->getIncrementId());
+        $curl->write(Zend_Http_Client::GET, $permission_url, '2', false);
         $response = $curl->read();
         $log = Mage::getModel('webwinkelconnect/log');
         $start_time = microtime(true);
+        $message = '';
+        $response_html = '';
+        $decoded_body = '';
         if ($response) {
             $response_html = Zend_Http_Response::fromString($response);
         } else {
-            $log->addToLog(
-                'invitation',
-                $order->getStoreId(),
-                '',
-                $this->__(
-                    sprintf(
-                        'Curl error number: %s. Curl error message: %s',
-                        $curl->getErrno(),
-                        $curl->getError()
-                    )
-                ),
-                (microtime(true) - $start_time),
-                'orderupdate',
-                $permission_url,
-                $order->getId()
+            $message = $this->__(
+                sprintf(
+                    'Curl error number: %s. Curl error message: %s',
+                    $curl->getErrno(),
+                    $curl->getError()
+                )
             );
-            return false;
         }
-        if($response_html->getStatus() != 200) {
-            $log->addToLog(
-                'invitation',
-                $order->getStoreId(),
-                '',
-                $this->__(
+        $curl->close();
+        if(!empty($response_html)) {
+            if ($response_html->getStatus() != 200) {
+                $message = $this->__(
                     sprintf(
                         'Response code: %s. Response body: %s',
                         $response_html->getStatus(),
                         $response_html->getBody()
                     )
-                ),
-                (microtime(true) - $start_time),
-                'orderupdate',
-                $permission_url,
-                $order->getId()
-            );
-            return false;
+                );
+            }
+            $decoded_body = json_decode($response_html->getBody());
         }
-        $decoded_body = json_decode($response_html->getBody());
-        if (!$decoded_body->has_consent) {
+        if (empty($message) && $decoded_body && !$decoded_body->has_consent) {
+            $message = $this->__(
+                sprintf(
+                    'Invitation has not been sent as the customer did not consent. Response code: %s. Response body: %s',
+                    $response_html->getStatus(),
+                    $response_html->getBody()
+                )
+            );
+        }
+
+        if (!empty($message)) {
             $log->addToLog(
                 'invitation',
                 $order->getStoreId(),
                 '',
-                $this->__(
-                    sprintf(
-                        'Invitation has not been sent as the customer did not consent. Response code: %s. Response body: %s',
-                        $response_html->getStatus(),
-                        $response_html->getBody()
-                    )
-                ),
+                $message,
                 (microtime(true) - $start_time),
                 'orderupdate',
                 $permission_url,
