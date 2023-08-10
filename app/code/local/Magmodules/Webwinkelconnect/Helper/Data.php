@@ -97,6 +97,11 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
 
+        $rating_options_collection = Mage::getModel('rating/rating')->getCollection();
+        if ($rating_options_collection->getSize() < 1) {
+            Mage::throwException($this->__('You have no ratings created. Please create at least one rating to use the product reviews feature.'));
+        }
+
         return true;
     }
 
@@ -112,11 +117,19 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function syncProductReview(array $product_review): array {
         $connection = Mage::getSingleton('core/resource')->getConnection('core_write');
+        if (!$this->isProductReviewInviteEnabled()) {
+            throw new RuntimeException("Product reviews are disabled");
+        }
         try {
             $connection->beginTransaction();
+            $product_id = $product_review['product_review']['product_id'];
+            $parent_id = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product_id);
+            if (!empty($parent_id)) {
+                $product_id = $parent_id[0];
+            }
 
             ($review = Mage::getModel('review/review'))
-                ->setEntityPkValue($product_review['product_review']['product_id'])
+                ->setEntityPkValue($product_id)
                 ->setStatusId(Mage_Review_Model_Review::STATUS_PENDING)
                 ->setTitle($product_review['product_review']['title'])
                 ->setDetail($product_review['product_review']['review'])
@@ -127,17 +140,27 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                 ->setNickname($product_review['product_review']['reviewer']['name'])
                 ->save();
 
+            $rating_option_id = Mage::getModel('rating/rating_option')->getCollection()
+                ->addFieldToFilter('rating_id', Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
+                ->addFieldToFilter('code', $product_review['product_review']['rating'])
+                ->getFirstItem()
+                ->getOptionId();
+
             Mage::getModel('rating/rating')
                 ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
                 ->setReviewId($review->getId())
-                ->addOptionVote($product_review['product_review']['rating'], $product_review['product_review']['product_id']);
+                ->addOptionVote($rating_option_id, $product_id);
             $review->aggregate();
-            $review->setCreatedAt(DateTime::createFromFormat('Y-m-d H:i:s', $product_review['product_review']['created']));
+            $review->setCreatedAt($product_review['product_review']['created']);
             $review->save();
 
             $connection->commit();
-            return ['message' => $review->getId(), 'code' => 200];
+            return [
+                'message' => json_encode(['review_id' => $review->getId()]),
+                'code' => 200
+            ];
         } catch (Exception $e) {
+            $connection->rollback();
             return ['message' => $e->getMessage(), 'code' => 500];
         }
     }

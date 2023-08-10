@@ -159,17 +159,31 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
         $products = [];
         foreach ($order->getAllItems() as $item) {
             $product = $item->getProduct();
+            if ($product->isConfigurable()) {
+                continue;
+            }
             $products[] = [
                 'name' => $product->getName(),
                 'url' => $product->getProductUrl(),
-                'id' => $product->getEntityId(),
+                'id' => $product->getId(),
                 'sku' => $product->getSku(),
-                'image_url' => $product->getImageUrl(),
+                'image_url' => $this->getProductImageUrl($product),
                 'brand' => $product->getAttributeText('manufacturer'),
             ];
         }
 
         return $products;
+    }
+
+    private function getProductImageUrl(Mage_Catalog_Model_Product $product): string {
+        if ($product->getMediaGalleryImages()->getSize() < 1) {
+            $parent_id = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId())[0];
+            if (!empty($parent_id)) {
+                $parent_product = Mage::getModel('catalog/product')->load($parent_id);
+                return $parent_product->getImageUrl();
+            }
+        }
+        return $product->getImageUrl();
     }
 
     private function getLanguage(int $storeId, Mage_Sales_Model_Order $order): string {
