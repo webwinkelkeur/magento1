@@ -3,8 +3,8 @@ if (!$this->isPopupEnabled()) {
     return;
 }
 
-echo sprintf(
+echo $this->getOrderData() ? sprintf(
     '<script type="application/json" id="%s_order_completed">%s</script>',
     htmlentities('webwinkelkeur'),
-    json_encode($this->getOrderData(), JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS)
-);
+    json_encode($this->getOrderData(), JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | (JSON_INVALID_UTF8_SUBSTITUTE ?: 0))
+) : '';

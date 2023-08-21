@@ -175,38 +175,49 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             ]);
 
         $start_time = microtime(true);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_URL, $permission_url);
+        $ch = $this->getCurlHandle($permission_url);
+
         try {
             $response = curl_exec($ch);
-            $message = '';
             if ($response === false) {
-                $message = curl_error($ch);
-            }
-            if ($response && !json_decode($response)->has_consent) {
+                $message = sprintf("Consent check failed with cURL error: (%s) %s", curl_errno($ch), curl_error($ch));
+            } elseif (empty(json_decode($response)->has_consent)) {
                 $message = 'Invitation has not been sent as the customer did not consent.';
+            } else {
+                return true;
             }
-            if (!empty($message)) {
-                Mage::getModel('webwinkelconnect/log')->addToLog(
-                    'invitation',
-                    $order->getStoreId(),
-                    '',
-                    $message,
-                    (microtime(true) - $start_time),
-                    'orderupdate',
-                    $permission_url,
-                    $order->getId()
-                );
-                return false;
-            }
-            return true;
+
+            Mage::getModel('webwinkelconnect/log')->addToLog(
+                'invitation',
+                $order->getStoreId(),
+                '',
+                $message,
+                (microtime(true) - $start_time),
+                'orderupdate',
+                $permission_url,
+                $order->getId()
+            );
+            return false;
         } finally {
             curl_close($ch);
         }
+    }
+
+    public function getCurlHandle(string $url, array $options = []) {
+        $ch = curl_init();
+        $default_curl_options = [
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_URL => $url,
+        ];
+        $all_options = curl_setopt_array($ch, $default_curl_options + $options);
+        if (!$all_options) {
+            throw new RuntimeException(sprintf("Could not set cURL options: (%s) %s", curl_errno($ch), curl_error($ch)));
+        }
+
+        return $ch;
     }
 
     private function getCustomerId(string $email):? int {

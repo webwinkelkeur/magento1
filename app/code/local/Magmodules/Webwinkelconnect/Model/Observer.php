@@ -171,15 +171,12 @@ class Magmodules_Webwinkelconnect_Model_Observer
             'url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'webwinkelkeur/index/sync',
         ]);
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $ch = $helper->getCurlHandle($url, [
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $data,
+        ]);
+
         try {
             $response = curl_exec($ch);
             if ($response === false) {
@@ -217,6 +214,7 @@ class Magmodules_Webwinkelconnect_Model_Observer
             $order_data['signature'] = Mage::helper('webwinkelconnect/Hash')->getHashForDash($order_data);
         } catch (Magmodules_Webwinkelconnect_Exception $e) {
             Mage::logException($e);
+            return;
         }
 
         $block = Mage::app()->getLayout()->getBlock('head.privacypopup');
