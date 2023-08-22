@@ -130,7 +130,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
 
             ($review = Mage::getModel('review/review'))
                 ->setEntityPkValue($product_id)
-                ->setStatusId(Mage_Review_Model_Review::STATUS_PENDING)
+                ->setStatusId(Mage_Review_Model_Review::STATUS_APPROVED)
                 ->setTitle($product_review['product_review']['title'])
                 ->setDetail($product_review['product_review']['review'])
                 ->setEntityId($review->getEntityIdByCode(Mage_Review_Model_Review::ENTITY_PRODUCT_CODE))
