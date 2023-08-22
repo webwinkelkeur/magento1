@@ -174,7 +174,7 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
             }
             $products[] = [
                 'name' => $product->getName(),
-                'url' => $product->getProductUrl(),
+                'url' => $this->getProductUrl($product),
                 'id' => $product->getId(),
                 'sku' => $product->getSku(),
                 'image_url' => $this->getProductImageUrl($product),
@@ -206,6 +206,14 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
             return strtolower($address->getCountry());
         }
         return $language;
+    }
+
+    private function getProductUrl(Mage_Catalog_Model_Product $product): string {
+        $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+        if ($parentIds) {
+            return Mage::getModel('catalog/product')->load($parentIds[0])->getProductUrl();
+        }
+        return $product->getProductUrl();
     }
 
 }
