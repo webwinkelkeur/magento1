@@ -110,37 +110,32 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $post_data,
         ]);
-
-        try {
-            $response = curl_exec($ch);
-            if ($response === false) {
-                Mage::getModel('webwinkelconnect/log')->addToLog(
-                    'invitation',
-                    $order->getStoreId(),
-                    '',
-                    $helper->__("There was an error sending the invitation to the dashboard: (%s) %s", curl_error($ch), curl_errno($ch)),
-                    (microtime(true) - $start_time),
-                    'orderupdate',
-                    $url,
-                    $order->getId()
-                );
-                return false;
-            }
-
+        $response = curl_exec($ch);
+        if ($response === false) {
             Mage::getModel('webwinkelconnect/log')->addToLog(
                 'invitation',
                 $order->getStoreId(),
                 '',
-                json_decode($response)->message,
+                $helper->__("There was an error sending the invitation to the dashboard: (%s) %s", curl_error($ch), curl_errno($ch)),
                 (microtime(true) - $start_time),
                 'orderupdate',
                 $url,
                 $order->getId()
             );
-            return true;
-        } finally {
-            curl_close($ch);
+            return false;
         }
+
+        Mage::getModel('webwinkelconnect/log')->addToLog(
+            'invitation',
+            $order->getStoreId(),
+            '',
+            json_decode($response)->message,
+            (microtime(true) - $start_time),
+            'orderupdate',
+            $url,
+            $order->getId()
+        );
+        return true;
     }
 
 
@@ -186,19 +181,26 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
     }
 
     private function getProductImageUrl(Mage_Catalog_Model_Product $product): string {
-        if ($product->getMediaGalleryImages()->getSize() < 1) {
-            $parent_id = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId())[0];
-            if (!empty($parent_id)) {
-                $parent_product = Mage::getModel('catalog/product')->load($parent_id);
-                return $parent_product->getImageUrl();
-            }
+        $media_config = Mage::getModel('catalog/product_media_config');
+        if ($product->getMediaGalleryImages()->getSize()) {
+            $image_file = $product->getImage();
+
+            return $media_config->getMediaUrl($image_file);
         }
-        return $product->getImageUrl();
+
+        $parent_id = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId())[0];
+        if (!empty($parent_id)) {
+            $parent_product = Mage::getModel('catalog/product')->load($parent_id);
+            $image_file = $parent_product->getImage();
+
+            return $media_config->getMediaUrl($image_file);
+        }
+        return '';
     }
 
     private function getLanguage(int $storeId, Mage_Sales_Model_Order $order): string {
         $language = Mage::getStoreConfig('webwinkelconnect/invitation/language', $storeId);
-        if (empty($language)) {
+        if (!$language) {
             return explode('_', Mage::getStoreConfig('general/locale/code',$storeId))[0];
         }
         if ($language == 'cus') {

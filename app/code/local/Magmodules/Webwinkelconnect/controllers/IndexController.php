@@ -70,11 +70,6 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
             return;
         }
 
-        if (!Mage::getModel('catalog/product')->load(strval($request_data['product_review']['product_id']))->getId()) {
-            $this->getResponse()->setHttpResponseCode(404)->setBody(sprintf('Could not find product with ID (%d)', $request_data['product_review']['product_id']));
-            return;
-        }
-
         if (!Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
             $this->getResponse()->setHttpResponseCode(403)->setBody('Product review sync is disabled');
             return;

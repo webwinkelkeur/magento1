@@ -21,6 +21,7 @@
 
 class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    private $curl_handle;
 
     /**
      * @return mixed
@@ -99,7 +100,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
 
         $rating_options_collection = Mage::getModel('rating/rating')->getCollection();
         if ($rating_options_collection->getSize() < 1) {
-            Mage::throwException($this->__('You have no ratings created. Please create at least one rating to use the product reviews feature.'));
+            throw Mage::exception('Magmodules_Webwinkelconnect', $this->__('You have no ratings created. Please create at least one rating to use the product reviews feature.'));
         }
 
         return true;
@@ -122,10 +123,16 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         }
         try {
             $connection->beginTransaction();
-            $product_id = $product_review['product_review']['product_id'];
+            $product_id = (int) $product_review['product_review']['product_id'];
             $parent_id = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product_id);
-            if (!empty($parent_id)) {
+            if ($parent_id) {
                 $product_id = $parent_id[0];
+            }
+            if (!Mage::getModel('catalog/product')->load($product_id)->getId()) {
+                return [
+                    'message' => sprintf('Could not find product with ID (%d)', $product_id),
+                    'code' => 404
+                ];
             }
 
             ($review = Mage::getModel('review/review'))
@@ -145,11 +152,16 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                 ->addFieldToFilter('code', $product_review['product_review']['rating'])
                 ->getFirstItem()
                 ->getOptionId();
+            if ($rating_option_id) {
+                Mage::getModel('rating/rating')
+                    ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
+                    ->setReviewId($review->getId())
+                    ->addOptionVote($rating_option_id, $product_id);
+            } else {
+                Mage::log('The dashboard rating has no analog in Magento.', Zend_Log::ERR, 'exception.log', true);
+                throw Mage::exception('Magmodules_Webwinkelconnect', $this->__('The dashboard rating has no analog in Magento.'));
+            }
 
-            Mage::getModel('rating/rating')
-                ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
-                ->setReviewId($review->getId())
-                ->addOptionVote($rating_option_id, $product_id);
             $review->aggregate();
             $review->setCreatedAt($product_review['product_review']['created']);
             $review->save();
@@ -177,34 +189,34 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         $start_time = microtime(true);
         $ch = $this->getCurlHandle($permission_url);
 
-        try {
-            $response = curl_exec($ch);
-            if ($response === false) {
-                $message = sprintf("Consent check failed with cURL error: (%s) %s", curl_errno($ch), curl_error($ch));
-            } elseif (empty(json_decode($response)->has_consent)) {
-                $message = 'Invitation has not been sent as the customer did not consent.';
-            } else {
-                return true;
-            }
-
-            Mage::getModel('webwinkelconnect/log')->addToLog(
-                'invitation',
-                $order->getStoreId(),
-                '',
-                $message,
-                (microtime(true) - $start_time),
-                'orderupdate',
-                $permission_url,
-                $order->getId()
-            );
-            return false;
-        } finally {
-            curl_close($ch);
+        $response = curl_exec($ch);
+        if ($response === false) {
+            $message = sprintf("Consent check failed with cURL error: (%s) %s", curl_errno($ch), curl_error($ch));
+        } elseif (empty(json_decode($response)->has_consent)) {
+            $message = 'Invitation has not been sent as the customer did not consent.';
+        } else {
+            return true;
         }
+
+        Mage::getModel('webwinkelconnect/log')->addToLog(
+            'invitation',
+            $order->getStoreId(),
+            '',
+            $message,
+            (microtime(true) - $start_time),
+            'orderupdate',
+            $permission_url,
+            $order->getId()
+        );
+        return false;
     }
 
     public function getCurlHandle(string $url, array $options = []) {
-        $ch = curl_init();
+        if (!$this->curl_handle) {
+            $this->curl_handle = curl_init();
+        } else {
+            curl_reset($this->curl_handle);
+        }
         $default_curl_options = [
             CURLOPT_TIMEOUT => 10,
             CURLOPT_RETURNTRANSFER => true,
@@ -212,12 +224,11 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             CURLOPT_FAILONERROR => true,
             CURLOPT_URL => $url,
         ];
-        $all_options = curl_setopt_array($ch, $default_curl_options + $options);
+        $all_options = curl_setopt_array($this->curl_handle, $default_curl_options + $options);
         if (!$all_options) {
-            throw new RuntimeException(sprintf("Could not set cURL options: (%s) %s", curl_errno($ch), curl_error($ch)));
+            throw new RuntimeException(sprintf("Could not set cURL options: (%s) %s", curl_errno($this->curl_handle), curl_error($this->curl_handle)));
         }
-
-        return $ch;
+        return $this->curl_handle;
     }
 
     private function getCustomerId(string $email):? int {

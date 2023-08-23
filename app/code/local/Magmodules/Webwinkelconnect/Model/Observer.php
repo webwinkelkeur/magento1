@@ -173,17 +173,12 @@ class Magmodules_Webwinkelconnect_Model_Observer
 
         $ch = $helper->getCurlHandle($url, [
             CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $data,
         ]);
 
-        try {
-            $response = curl_exec($ch);
-            if ($response === false) {
-                throw new Exception(sprintf('Could not send sync URL to dashboard: %s', curl_error($ch)));
-            }
-        } finally {
-            curl_close($ch);
+        $response = curl_exec($ch);
+        if ($response === false) {
+            throw new Exception(sprintf('Could not send sync URL to dashboard: %s', curl_error($ch)));
         }
     }
 

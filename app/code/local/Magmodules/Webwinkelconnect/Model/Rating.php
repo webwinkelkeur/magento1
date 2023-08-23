@@ -1,7 +1,7 @@
 <?php
 
 class Magmodules_Webwinkelconnect_Model_Rating extends Mage_Rating_Model_Rating {
-    public function toOptionArray() {
+    public function toOptionArray(): array {
         $rating_options = Mage::getModel('rating/rating')->getCollection();
         $result = [];
         foreach ($rating_options as $option) {
