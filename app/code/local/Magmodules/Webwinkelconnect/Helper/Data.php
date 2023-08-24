@@ -130,13 +130,43 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             }
             if (!Mage::getModel('catalog/product')->load($product_id)->getId()) {
                 return [
-                    'message' => sprintf('Could not find product with ID (%d)', $product_id),
+                    'message' => $this->__('Could not find product with ID (%d)', $product_id),
                     'code' => 404
                 ];
             }
+            $review = Mage::getModel('review/review');
+            if ($product_review['product_review']['id']) {
+                $review = Mage::getModel('review/review')->load($product_review['product_review']['id']);
+            }
+            if ($product_review['product_review']['id'] && !$review->getId()) {
+                return [
+                    'message' => $this->__('Review with ID %s does not exist in Magento', $product_review['product_review']['id']),
+                    'code' => 404
+                ];
+            }
+            if($product_review['product_review']['deleted'] && $review->getId()) {
+                Mage::register('isSecureArea', true);
+                $review->delete();
+                Mage::unregister('isSecureArea');
+                $connection->commit();
 
-            ($review = Mage::getModel('review/review'))
-                ->setEntityPkValue($product_id)
+                $time = microtime(true);
+
+                Mage::getModel('webwinkelconnect/log')->addToLog(
+                    'review_delete',
+                    Mage::app()->getStore(),
+                    '',
+                    $this->__("Deleted review with ID (%s)", $product_review['product_review']['id']),
+                    (microtime(true) - $time),
+                    '',
+                    '',
+                    $product_review['product_review']['id']
+                );
+
+                return ['message' => json_encode(['review_id' => $product_review['product_review']['id']], JSON_PARTIAL_OUTPUT_ON_ERROR), 'code' => 200];
+            }
+
+            $review->setEntityPkValue($product_id)
                 ->setStatusId(Mage_Review_Model_Review::STATUS_APPROVED)
                 ->setTitle($product_review['product_review']['title'])
                 ->setDetail($product_review['product_review']['review'])
@@ -166,6 +196,22 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             $review->save();
 
             $connection->commit();
+
+            if ($product_review['product_review']['id']) {
+                $time = microtime(true);
+
+                Mage::getModel('webwinkelconnect/log')->addToLog(
+                    'review_edit',
+                    Mage::app()->getStore(),
+                    '',
+                    $this->__("Edited review with ID (%s)", $product_review['product_review']['id']),
+                    (microtime(true) - $time),
+                    '',
+                    '',
+                    $product_review['product_review']['id']
+                );
+            }
+
             return [
                 'message' => json_encode(['review_id' => $review->getId()]),
                 'code' => 200
@@ -190,7 +236,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
 
         $response = curl_exec($ch);
         if ($response === false) {
-            $message = sprintf("Consent check failed with cURL error: (%s) %s", curl_errno($ch), curl_error($ch));
+            $message = $this->__("Consent check failed with cURL error: (%s) %s", curl_errno($ch), curl_error($ch));
         } elseif (empty(json_decode($response)->has_consent)) {
             $message = 'Invitation has not been sent as the customer did not consent.';
         } else {
@@ -225,7 +271,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         ];
         $all_options = curl_setopt_array($this->curl_handle, $default_curl_options + $options);
         if (!$all_options) {
-            throw new RuntimeException(sprintf("Could not set cURL options: (%s) %s", curl_errno($this->curl_handle), curl_error($this->curl_handle)));
+            throw new RuntimeException($this->__("Could not set cURL options: (%s) %s", curl_errno($this->curl_handle), curl_error($this->curl_handle)));
         }
         return $this->curl_handle;
     }
