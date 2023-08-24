@@ -144,7 +144,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                     'code' => 404
                 ];
             }
-            if($product_review['product_review']['deleted'] && $review->getId()) {
+            if(!empty($product_review['product_review']['deleted']) && $review->getId()) {
                 Mage::register('isSecureArea', true);
                 $review->delete();
                 Mage::unregister('isSecureArea');
