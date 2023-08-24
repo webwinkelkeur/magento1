@@ -84,12 +84,12 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
         $post_data['customer_name'] = $order->getCustomerName();
         $post_data['client'] = 'magento1';
         $post_data['platform_version'] = Mage::getVersion();
-        $post_data['language'] = $this->getLanguage($store_id, $order);
+        $post_data['language'] = $helper->getInviteLanguage($store_id, $order);
 
         if (Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
             $post_data['order_data'] = json_encode([
                 'order' => $order,
-                'products' => $this->getOrderProducts($order),
+                'products' => $helper->getOrderProducts($order),
             ]);
         }
 
@@ -159,64 +159,4 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
 
         return $storeIds;
     }
-
-    private function getOrderProducts(Mage_Sales_Model_Order $order): array {
-        $products = [];
-        foreach ($order->getAllItems() as $item) {
-            $product = $item->getProduct();
-            if ($product->isConfigurable()) {
-                continue;
-            }
-            $products[] = [
-                'name' => $product->getName(),
-                'url' => $this->getProductUrl($product),
-                'id' => $product->getId(),
-                'sku' => $product->getSku(),
-                'image_url' => $this->getProductImageUrl($product),
-                'brand' => $product->getAttributeText('manufacturer'),
-            ];
-        }
-
-        return $products;
-    }
-
-    private function getProductImageUrl(Mage_Catalog_Model_Product $product): string {
-        $media_config = Mage::getModel('catalog/product_media_config');
-        if ($product->getMediaGalleryImages()->getSize()) {
-            $image_file = $product->getImage();
-
-            return $media_config->getMediaUrl($image_file);
-        }
-
-        $parent_ids = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
-        if ($parent_ids) {
-            $parent_id = $parent_ids[0];
-            $parent_product = Mage::getModel('catalog/product')->load($parent_id);
-            $image_file = $parent_product->getImage();
-
-            return $media_config->getMediaUrl($image_file);
-        }
-        return '';
-    }
-
-    private function getLanguage(int $storeId, Mage_Sales_Model_Order $order): string {
-        $language = Mage::getStoreConfig('webwinkelconnect/invitation/language', $storeId);
-        if (!$language) {
-            return explode('_', Mage::getStoreConfig('general/locale/code',$storeId))[0];
-        }
-        if ($language == 'cus') {
-            $address = $order->getShippingAddress();
-            return strtolower($address->getCountry());
-        }
-        return $language;
-    }
-
-    private function getProductUrl(Mage_Catalog_Model_Product $product): string {
-        $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
-        if ($parentIds) {
-            return Mage::getModel('catalog/product')->load($parentIds[0])->getProductUrl();
-        }
-        return $product->getProductUrl();
-    }
-
 }

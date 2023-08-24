@@ -230,6 +230,66 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->curl_handle;
     }
 
+
+    public function getOrderProducts(Mage_Sales_Model_Order $order): array {
+        $products = [];
+        foreach ($order->getAllItems() as $item) {
+            $product = $item->getProduct();
+            if ($product->isConfigurable()) {
+                continue;
+            }
+            $products[] = [
+                'name' => $product->getName(),
+                'url' => $this->getProductUrl($product),
+                'id' => $product->getId(),
+                'sku' => $product->getSku(),
+                'image_url' => $this->getProductImageUrl($product),
+                'brand' => $product->getAttributeText('manufacturer'),
+            ];
+        }
+
+        return $products;
+    }
+
+    private function getProductUrl(Mage_Catalog_Model_Product $product): string {
+        $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+        if ($parentIds) {
+            return Mage::getModel('catalog/product')->load($parentIds[0])->getProductUrl();
+        }
+        return $product->getProductUrl();
+    }
+
+    private function getProductImageUrl(Mage_Catalog_Model_Product $product): string {
+        $media_config = Mage::getModel('catalog/product_media_config');
+        if ($product->getMediaGalleryImages()->getSize()) {
+            $image_file = $product->getImage();
+
+            return $media_config->getMediaUrl($image_file);
+        }
+
+        $parent_ids = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+        if ($parent_ids) {
+            $parent_id = $parent_ids[0];
+            $parent_product = Mage::getModel('catalog/product')->load($parent_id);
+            $image_file = $parent_product->getImage();
+
+            return $media_config->getMediaUrl($image_file);
+        }
+        return '';
+    }
+
+    public function getInviteLanguage(int $storeId, Mage_Sales_Model_Order $order): string {
+        $language = Mage::getStoreConfig('webwinkelconnect/invitation/language', $storeId);
+        if (!$language) {
+            return explode('_', Mage::getStoreConfig('general/locale/code',$storeId))[0];
+        }
+        if ($language == 'cus') {
+            $address = $order->getShippingAddress();
+            return strtolower($address->getCountry());
+        }
+        return $language;
+    }
+
     private function getCustomerId(string $email):? int {
         return Mage::getModel('customer/customer')
             ->setWebsiteId(Mage::app()->getWebsite()->getId())
