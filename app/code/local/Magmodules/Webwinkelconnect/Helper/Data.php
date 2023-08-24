@@ -152,15 +152,14 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                 ->addFieldToFilter('code', $product_review['product_review']['rating'])
                 ->getFirstItem()
                 ->getOptionId();
-            if ($rating_option_id) {
-                Mage::getModel('rating/rating')
-                    ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
-                    ->setReviewId($review->getId())
-                    ->addOptionVote($rating_option_id, $product_id);
-            } else {
+            if (!$rating_option_id) {
                 Mage::log('The dashboard rating has no analog in Magento.', Zend_Log::ERR, 'exception.log', true);
                 throw Mage::exception('Magmodules_Webwinkelconnect', $this->__('The dashboard rating has no analog in Magento.'));
             }
+            Mage::getModel('rating/rating')
+                ->setRatingId(Mage::getStoreConfig('webwinkelconnect/product_review_invites/rating'))
+                ->setReviewId($review->getId())
+                ->addOptionVote($rating_option_id, $product_id);
 
             $review->aggregate();
             $review->setCreatedAt($product_review['product_review']['created']);

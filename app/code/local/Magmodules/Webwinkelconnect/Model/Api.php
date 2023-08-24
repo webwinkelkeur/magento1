@@ -188,8 +188,9 @@ class Magmodules_Webwinkelconnect_Model_Api extends Mage_Core_Model_Abstract
             return $media_config->getMediaUrl($image_file);
         }
 
-        $parent_id = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId())[0];
-        if (!empty($parent_id)) {
+        $parent_ids = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+        if ($parent_ids) {
+            $parent_id = $parent_ids[0];
             $parent_product = Mage::getModel('catalog/product')->load($parent_id);
             $image_file = $parent_product->getImage();
 
