@@ -135,37 +135,44 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                 ];
             }
             $review = Mage::getModel('review/review');
-            if ($product_review['product_review']['id']) {
-                $review = Mage::getModel('review/review')->load($product_review['product_review']['id']);
+            if (isset($product_review['product_review']['id'])) {
+                $review = $review->load($product_review['product_review']['id']);
+                if (!$review->getId()) {
+                    return [
+                        'message' => $this->__('Review with ID %s does not exist in Magento', $product_review['product_review']['id']),
+                        'code' => 404
+                    ];
+                }
             }
-            if ($product_review['product_review']['id'] && !$review->getId()) {
+            if (!empty($product_review['product_review']['deleted']) && !isset($product_review['product_review']['id'])) {
                 return [
-                    'message' => $this->__('Review with ID %s does not exist in Magento', $product_review['product_review']['id']),
-                    'code' => 404
+                    'message' => $this->__('Invalid review delete request, review ID missing.'),
+                    'code' => 400
                 ];
             }
-            if(!empty($product_review['product_review']['deleted']) && $review->getId()) {
+            if (!empty($product_review['product_review']['deleted']) && $review->getId()) {
+                $review_delete_start = microtime(true);
                 Mage::register('isSecureArea', true);
                 $review->delete();
                 Mage::unregister('isSecureArea');
                 $connection->commit();
 
-                $time = microtime(true);
-
+                $review_delete = microtime(true) - $review_delete_start;
                 Mage::getModel('webwinkelconnect/log')->addToLog(
                     'review_delete',
                     Mage::app()->getStore(),
                     '',
                     $this->__("Deleted review with ID (%s)", $product_review['product_review']['id']),
-                    (microtime(true) - $time),
+                    $review_delete,
                     '',
                     '',
                     $product_review['product_review']['id']
                 );
 
-                return ['message' => json_encode(['review_id' => $product_review['product_review']['id']], JSON_PARTIAL_OUTPUT_ON_ERROR), 'code' => 200];
+                return ['message' => json_encode(['review_id' => $review->getId()]), 'code' => 200];
             }
 
+            $review_edit_time_start = microtime(true);
             $review->setEntityPkValue($product_id)
                 ->setStatusId(Mage_Review_Model_Review::STATUS_APPROVED)
                 ->setTitle($product_review['product_review']['title'])
@@ -195,17 +202,18 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
             $review->setCreatedAt($product_review['product_review']['created']);
             $review->save();
 
+            $review_edit_time = microtime(true) - $review_edit_time_start;
+
             $connection->commit();
 
             if ($product_review['product_review']['id']) {
-                $time = microtime(true);
 
                 Mage::getModel('webwinkelconnect/log')->addToLog(
                     'review_edit',
                     Mage::app()->getStore(),
                     '',
                     $this->__("Edited review with ID (%s)", $product_review['product_review']['id']),
-                    (microtime(true) - $time),
+                    $review_edit_time,
                     '',
                     '',
                     $product_review['product_review']['id']
