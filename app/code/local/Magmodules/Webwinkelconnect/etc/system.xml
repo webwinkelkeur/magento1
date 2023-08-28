@@ -186,18 +186,29 @@
                                 <enabled>1</enabled>
                             </depends>
                         </backlog>
-                        <resend_double translate="label">
-                            <label>Resend if Double</label>
+                    </fields>
+                </invitation>
+                <privacy_first_option translate="label,comment">
+                    <label><![CDATA[Privacy first option]]></label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>3</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <privacy_popup translate="label,comment">
+                            <label><![CDATA[Pop-up after purchase on "thank you" page.]]></label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>6</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>If set to "Yes", customers will get new review reminders for every new order.</comment>
-                        </resend_double>
+                            <comment><![CDATA[Privacy first option: order data will be shared only after consent from the customer.]]></comment>
+                        </privacy_popup>
                     </fields>
-                </invitation>
+                </privacy_first_option>
                 <product_review_invites translate="label,comment">
                     <label><![CDATA[Invitation to write product review]]></label>
                     <frontend_type>text</frontend_type>
@@ -218,6 +229,17 @@
                             <show_in_store>1</show_in_store>
                             <comment><![CDATA[Send product review invitation?]]></comment>
                         </enabled>
+                        <rating translate="label,comment">
+                            <label><![CDATA[Rating]]></label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Magmodules_Webwinkelconnect_Model_Rating</source_model>
+                            <depends><enabled>1</enabled></depends>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment><![CDATA[You can have multiple types of reviews for a product in your Magento shop. Via WebwinkelKeur, you get 1 overall product review each time. Which type in Magento do you want to link this to?]]></comment>
+                        </rating>
                     </fields>
                 </product_review_invites>
                 <frontend translate="label">

@@ -35,6 +35,9 @@ class Magmodules_Webwinkelconnect_Model_System_Config_Source_Language
         $lan[] = array('value' => 'deu', 'label' => Mage::helper('webwinkelconnect')->__('German'));
         $lan[] = array('value' => 'fra', 'label' => Mage::helper('webwinkelconnect')->__('French'));
         $lan[] = array('value' => 'spa', 'label' => Mage::helper('webwinkelconnect')->__('Spanish'));
+        $lan[] = array('value' => 'ita', 'label' => Mage::helper('webwinkelconnect')->__('Italian'));
+        $lan[] = array('value' => 'hrv', 'label' => Mage::helper('webwinkelconnect')->__('Croatian'));
+        $lan[] = array('value' => 'bul', 'label' => Mage::helper('webwinkelconnect')->__('Bulgarian'));
 
         return $lan;
     }

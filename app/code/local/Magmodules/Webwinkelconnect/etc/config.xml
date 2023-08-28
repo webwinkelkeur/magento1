@@ -97,6 +97,17 @@
         </events>
     </global>
     <frontend>
+        <events>
+            <checkout_onepage_controller_success_action>
+                <observers>
+                    <connector>
+                        <type>singleton</type>
+                        <class>webwinkelconnect/observer</class>
+                        <method>addOrderDataJsonThankYouPage</method>
+                    </connector>
+                </observers>
+            </checkout_onepage_controller_success_action>
+        </events>
         <routers>
             <webwinkelconnect>
                 <use>standard</use>

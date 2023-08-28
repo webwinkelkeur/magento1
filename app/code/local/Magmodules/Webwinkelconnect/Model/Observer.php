@@ -164,26 +164,55 @@ class Magmodules_Webwinkelconnect_Model_Observer
             return;
         }
 
-        $curl = new Varien_Http_Adapter_Curl();
-        $curl->setConfig([
-            'timeout'   => 10,
-        ]);
         $url = 'https://dashboard.webwinkelkeur.nl/webshops/sync_url';
         $data = json_encode([
             'webshop_id' => $helper->getShopId(),
             'api_key' => $helper->getApiKey(),
             'url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'webwinkelkeur/index/sync',
         ]);
-        try {
-            $curl->addOption(CURLOPT_FAILONERROR, 1);
-            $curl->write(Zend_Http_Client::POST, $url, '2', ['Content-Type:application/json'], $data);
-            $response = $curl->read();
-            if (!$response) {
-                throw new Exception(sprintf('Could not send sync URL to dashboard: (%s) %s',$curl->getErrno(), $curl->getError()));
-            }
-        } finally {
-            $curl->close();
+
+        $ch = $helper->getCurlHandle($url, [
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => $data,
+        ]);
+
+        $response = curl_exec($ch);
+        if ($response === false) {
+            throw new Exception(sprintf('Could not send sync URL to dashboard: %s', curl_error($ch)));
         }
     }
 
+
+    public function addOrderDataJsonThankYouPage(Varien_Event_Observer $observer): void {
+        if (Mage::app()->getFrontController()->getAction()->getFullActionName() != 'checkout_onepage_success') {
+            return;
+        }
+
+        if (!Mage::getStoreConfig('webwinkelconnect/privacy_first_option/privacy_popup')) {
+            return;
+        }
+
+        $order_id = $observer->getEvent()->getOrderIds()[0];
+        if (!$order_id) {
+            return;
+        }
+
+        $order = Mage::getModel('sales/order')->load($order_id);
+        $order_data = [
+            'webshopId' => Mage::helper('webwinkelconnect')->getShopId(),
+            'orderNumber' => $order->getIncrementId(),
+            'email' => $order->getCustomerEmail(),
+            'firstName' => $order->getData('customer_firstname'),
+            'inviteDelay' => Mage::getStoreConfig('webwinkelconnect/invitation/delay'),
+        ];
+        try {
+            $order_data['signature'] = Mage::helper('webwinkelconnect/Hash')->getHashForDash($order_data);
+        } catch (Magmodules_Webwinkelconnect_Exception $e) {
+            Mage::logException($e);
+            return;
+        }
+
+        $block = Mage::app()->getLayout()->getBlock('head.privacypopup');
+        $block->setOrderData($order_data);
+    }
 }

@@ -41,6 +41,11 @@
                    template="magmodules/webwinkelconnect/sidebar/js-sidebar.phtml"/>
         </reference>
     </default>
+    <checkout_onepage_success>
+        <reference name="head">
+            <block type="webwinkelconnect/privacypopup" name="head.privacypopup" template="magmodules/webwinkelconnect/popup/privacy-popup.phtml" />
+        </reference>
+    </checkout_onepage_success>
     <webwinkelconnect_index_index>
         <reference name="root">
             <action method="setTemplate">

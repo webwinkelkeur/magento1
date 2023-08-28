@@ -68,6 +68,8 @@ class Magmodules_Webwinkelconnect_Block_Adminhtml_Webwinkellog_Grid extends Mage
             'options' => array(
                 'reviews' => Mage::helper('webwinkelconnect')->__('Reviews'),
                 'invitation' => Mage::helper('webwinkelconnect')->__('Invitation Call'),
+                'review_delete' => Mage::helper('webwinkelconnect')->__('Review Delete'),
+                'review_edit' => Mage::helper('webwinkelconnect')->__('Review Edit'),
             ),
             )
         );

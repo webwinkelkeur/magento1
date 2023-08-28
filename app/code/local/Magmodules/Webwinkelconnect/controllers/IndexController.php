@@ -21,7 +21,6 @@
  
 class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_Front_Action
 {
-    
     public function indexAction() 
     {
         $enabled = Mage::getStoreConfig('webwinkelconnect/general/enabled');
@@ -48,4 +47,36 @@ class Magmodules_Webwinkelconnect_IndexController extends Mage_Core_Controller_F
         }
     }
 
+    public function syncAction(): void {
+        $request_data = file_get_contents('php://input');
+        if (!$request_data) {
+            $this->getResponse()->setHttpResponseCode(400)->setBody('Empty request data');
+            return;
+        }
+        if (!$request_data = json_decode($request_data, true)) {
+            $this->getResponse()->setHttpResponseCode(400)->setBody('Invalid JSON data provided');
+            return;
+        }
+
+        if (!isset($request_data['webshop_id']) || !isset($request_data['api_key'])) {
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Missing one or more credential fields');
+            return;
+        }
+
+        $helper = Mage::helper('webwinkelconnect');
+
+        if (!$helper->hasCorrectCredentials(strval($request_data['webshop_id']), strval($request_data['api_key']))) {
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Empty or incorrect credential fields');
+            return;
+        }
+
+        if (!Mage::getStoreConfig('webwinkelconnect/product_review_invites/enabled')) {
+            $this->getResponse()->setHttpResponseCode(403)->setBody('Product review sync is disabled');
+            return;
+        }
+        $sync_response = $helper->syncProductReview($request_data);
+        $this->getResponse()
+            ->setHttpResponseCode($sync_response['code'])
+            ->setBody($sync_response['message']);
+    }
 }

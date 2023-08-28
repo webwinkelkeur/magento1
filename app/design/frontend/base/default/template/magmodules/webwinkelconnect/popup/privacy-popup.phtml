@@ -1,0 +1,10 @@
+<?php
+if (!$this->isPopupEnabled() || !$this->getOrderData()) {
+    return;
+}
+
+echo sprintf(
+    '<script type="application/json" id="%s_order_completed">%s</script>',
+    htmlentities('webwinkelkeur'),
+    json_encode($this->getOrderData(), JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | (defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0))
+);

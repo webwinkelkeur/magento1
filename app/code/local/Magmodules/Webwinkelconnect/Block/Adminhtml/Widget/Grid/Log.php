@@ -66,6 +66,10 @@ class Magmodules_Webwinkelconnect_Block_Adminhtml_Widget_Grid_Log
             }    
         }
 
+        if ($type == 'review_delete' || $type == 'review_edit') {
+            $msg = $row->getResponse();
+        }
+
         return ucfirst($msg);
     }
 
