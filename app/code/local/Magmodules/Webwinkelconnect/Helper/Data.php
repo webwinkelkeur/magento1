@@ -144,18 +144,18 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                     ];
                 }
             }
-            if (!empty($product_review['product_review']['deleted']) && !isset($product_review['product_review']['id'])) {
-                return [
-                    'message' => $this->__('Invalid review delete request, review ID missing.'),
-                    'code' => 400
-                ];
-            }
-            if (!empty($product_review['product_review']['deleted']) && $review->getId()) {
+            if (!empty($product_review['product_review']['deleted'])) {
+                if (!$review->getId()) {
+                    return [
+                        'message' => $this->__('Invalid review delete request, review ID missing.'),
+                        'code' => 400
+                    ];
+                }
+
                 $review_delete_start = microtime(true);
                 Mage::register('isSecureArea', true);
                 $review->delete();
                 Mage::unregister('isSecureArea');
-                $connection->commit();
 
                 $review_delete = microtime(true) - $review_delete_start;
                 Mage::getModel('webwinkelconnect/log')->addToLog(
@@ -168,7 +168,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                     '',
                     $product_review['product_review']['id']
                 );
-
+                $connection->commit();
                 return ['message' => json_encode(['review_id' => $review->getId()]), 'code' => 200];
             }
 
@@ -204,10 +204,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
 
             $review_edit_time = microtime(true) - $review_edit_time_start;
 
-            $connection->commit();
-
             if ($product_review['product_review']['id']) {
-
                 Mage::getModel('webwinkelconnect/log')->addToLog(
                     'review_edit',
                     Mage::app()->getStore(),
@@ -219,6 +216,7 @@ class Magmodules_Webwinkelconnect_Helper_Data extends Mage_Core_Helper_Abstract
                     $product_review['product_review']['id']
                 );
             }
+            $connection->commit();
 
             return [
                 'message' => json_encode(['review_id' => $review->getId()]),
