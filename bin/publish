@@ -10,4 +10,4 @@ package="$(./bin/package)"
 
 git push --tags origin master
 
-hub release create -do -a "$package" -m "WebwinkelKeur for Magento 1 v${version}" "v${version}"
+hub release create -d -a "$package" -m "WebwinkelKeur for Magento 1 v${version}" "v${version}"
